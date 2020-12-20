@@ -269,6 +269,21 @@ This is another variant from the above regular GAN classifier. Given images of s
   where
   - `out_fingerprint_dir`: The output directory containing model fingerprints, image fingerprint(s), and image fingerprints masked(re-weighted) by each model fingerprint.
 
+  - **Embed fingerprints**. Run, e.g.,
+    ```
+    python putmark.py \
+    --model stegastamp \
+    --dataset CelebA \
+    --modelpath "../saved_models/celeba_" \
+    --datasetpath 'celeba/path' \
+    --savedir "pth/stegastamp_CelebA" \
+    --batchsize 50 \
+    --cuda '2' \
+    --output_size 100 \
+    --fingerprint_size 100 
+   ```
+
+
 ## Citation
 ```
 @inproceedings{yu2019attributing,
