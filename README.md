@@ -309,10 +309,7 @@ This is another variant from the above regular GAN classifier. Given images of s
     --data_dir /path/to/images \
     --output_dir /path/to/save/results \
     --fingerprint_size 100 
-
    ```
-
-
   - **Embed fingerprints**. Run, e.g.,
     ```
     python embed_fingerprints.py \
@@ -325,7 +322,6 @@ This is another variant from the above regular GAN classifier. Given images of s
     --output_size 100 \
     --fingerprint_size 100 
    ```
-
   - **Detect fingerprints**. Run, e.g.,
     ```
     python detect_fingerprints.py \
@@ -336,6 +332,5 @@ This is another variant from the above regular GAN classifier. Given images of s
     --seed 42 \
     --use_images \
     --dataset_path ./StyleGAN/results/00015-generate-images/images_tensor.pth
-
     ```
 
