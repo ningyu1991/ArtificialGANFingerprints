@@ -300,3 +300,42 @@ This is another variant from the above regular GAN classifier. Given images of s
 - We thank [Hao Zhou](http://users.umiacs.umd.edu/~hzhou/) for helping with the relighting experiments.
 - We also thank [Yaser Yacoob](https://www.umiacs.umd.edu/people/yaser) and [Abhinav Shrivastava](http://abhinavsh.info/) for constructive advice in general.
 - We express gratitudes to the [ProGAN](https://github.com/tkarras/progressive_growing_of_gans) repository as we benefit a lot from their code.
+
+
+  - **Train encoder**. Run, e.g.,
+    ```
+    python train.py \
+    --dataset CelebA \
+    --data_dir /path/to/images \
+    --output_dir /path/to/save/results \
+    --fingerprint_size 100 
+
+   ```
+
+
+  - **Embed fingerprints**. Run, e.g.,
+    ```
+    python embed_fingerprints.py \
+    --model stegastamp \
+    --dataset CelebA \
+    --modelpath "../saved_models/celeba_" \
+    --datasetpath 'celeba/path' \
+    --savedir "pth/stegastamp_CelebA" \
+    --batchsize 50 \
+    --output_size 100 \
+    --fingerprint_size 100 
+   ```
+
+  - **Detect fingerprints**. Run, e.g.,
+    ```
+    python detect_fingerprints.py \
+    --ganpath "./saved_models/progan_celeba_generator.pth" \
+    --decoderpath "./saved_models/lsun_decoder.pth" \
+    --secret_size 100 \
+    --ganmodel 'ProGAN' \
+    --seed 42 \
+    --use_images \
+    --dataset_path ./StyleGAN/results/00015-generate-images/images_tensor.pth
+
+    ```
+
