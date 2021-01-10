@@ -29,7 +29,12 @@ parser.add_argument(
     default=1000,
 )
 parser.add_argument("--l2_loss_scale", type=float, default=10, help="L2 loss weight.")
-parser.add_argument("--l2_loss_ramp", type=int, default=3000, help="Linearly increase L2 loss weight over x iterations.")
+parser.add_argument(
+    "--l2_loss_ramp",
+    type=int,
+    default=3000,
+    help="Linearly increase L2 loss weight over x iterations.",
+)
 
 parser.add_argument("--BCE_loss_scale", type=float, default=1, help="BCE loss weight.")
 
@@ -129,7 +134,9 @@ def main():
         IMAGE_WIDTH = args.resolution
         IMAGE_CHANNELS = 3
     else:
-        raise ValueError(f"Unrecognized dataset option {args.dataset}. Expected CelebA or LSUN.")
+        raise ValueError(
+            f"Unrecognized dataset option {args.dataset}. Expected CelebA or LSUN."
+        )
 
     encoder = models.StegaStampEncoder(
         secret_size=args.fingerprint_size,
@@ -166,9 +173,14 @@ def main():
             )
 
             l2_loss_scale = min(
-                    max(0, args.l2_loss_scale * (global_step - args.l2_loss_await) / args.l2_loss_ramp),
-                    args.l2_loss_scale,
-                )
+                max(
+                    0,
+                    args.l2_loss_scale
+                    * (global_step - args.l2_loss_await)
+                    / args.l2_loss_ramp,
+                ),
+                args.l2_loss_scale,
+            )
             BCE_loss_scale = args.BCE_loss_scale
 
             clean_images = images.to(device)
@@ -194,7 +206,9 @@ def main():
             decoder_encoder_optim.step()
 
             fingerprints_predicted = (decoder_output > 0).float()
-            bitwise_accuracy = 1.0 - torch.mean(torch.abs(fingerprints - fingerprints_predicted))
+            bitwise_accuracy = 1.0 - torch.mean(
+                torch.abs(fingerprints - fingerprints_predicted)
+            )
 
             # Logging
             if global_step in plot_points:

@@ -1,13 +1,25 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--cuda", type=str)
-parser.add_argument("--ganmodel", type=str)
-parser.add_argument("--ganpath", type=str)
-parser.add_argument("--decoderpath", type=str)
-parser.add_argument("--dataset_path", type=str)
+parser.add_argument(
+    "--fingerprint_size",
+    type=int,
+    required=True,
+    default=100,
+    help="Number of bits in the fingerprint.",
+)
+parser.add_argument(
+    "--decoder_path",
+    type=str,
+    required=True,
+    help="Path to trained StegaStamp decoder.",
+)
+parser.add_argument(
+    "--gan_path", type=str, required=True, help="Path to trained GAN generator."
+)
+parser.add_argument("--cuda", type=int, default=0)
+parser.add_argument("--ganmodel", type=str, default="ProGAN")
 parser.add_argument("--scale", type=int, default=5)
-parser.add_argument("--secret_size", type=int, default=100)
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--quantize", action="store_true")
 parser.add_argument("--w_n_digits", type=int, default=5)
@@ -17,7 +29,6 @@ parser.add_argument("--rewatermark", action="store_true")
 parser.add_argument("--rewatermark_weight", type=float, default=0.0)
 parser.add_argument("--rewatermark_encoderpath", type=str)
 parser.add_argument("--rewatermark_seed", type=int)
-parser.add_argument("--use_real_data", action="store_true")
 
 
 args = parser.parse_args()
@@ -25,7 +36,7 @@ args = parser.parse_args()
 import os
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda)
 
 import torch
 from torch import nn
@@ -42,16 +53,16 @@ def hypersphere(z, radius=1):
     return z * radius / z.norm(p=2, dim=1, keepdim=True)
 
 
-def generate_random_secrets(secret_size, batch_size=4):
-    z = torch.zeros((batch_size, secret_size), dtype=torch.float).random_(0, 2)
+def generate_random_fingerprints(fingerprint_size, batch_size=4):
+    z = torch.zeros((batch_size, fingerprint_size), dtype=torch.float).random_(0, 2)
     return z
 
 
 Z_DIM = 100
 
-SECRET_SIZE = args.secret_size
+SECRET_SIZE = args.fingerprint_size
 
-if args.cuda != "-1":
+if args.cuda != -1:
     device = torch.device("cuda:0")
 else:
     device = torch.device("cpu")
@@ -63,29 +74,21 @@ def load_encoder_decoder():
     from models import StegaStampDecoder, StegaStampEncoder
 
     RevealNet = StegaStampDecoder(128, 128, 3, SECRET_SIZE)
-    if args.cuda == "-1":
-        RevealNet.load_state_dict(torch.load(args.decoderpath, map_location="cpu"))
-    else:
-        RevealNet.load_state_dict(torch.load(args.decoderpath))
-
+    kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
+    RevealNet.load_state_dict(torch.load(args.decoder_path, **kwargs))
     RevealNet = RevealNet.to(device)
 
     if args.rewatermark:
         EncoderNet = StegaStampEncoder(128, 128, 3, SECRET_SIZE)
-        if args.cuda == "-1":
-            EncoderNet.load_state_dict(
-                torch.load(args.rewatermark_encoderpath, map_location="cpu")
-            )
-        else:
-            EncoderNet.load_state_dict(torch.load(args.rewatermark_encoderpath))
-
+        kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
+        EncoderNet.load_state_dict(torch.load(args.rewatermark_encoderpath, **kwargs))
         EncoderNet = EncoderNet.to(device)
 
 
 def save_samples():
     global Gs
 
-    Gs = torch.load(args.ganpath)
+    Gs = torch.load(args.gan_path)
     batch_size = 64
     z_save = hypersphere(torch.randn(batch_size, 4 * 32, 1, 1))
     z_save = z_save.to(device)
@@ -113,7 +116,7 @@ def save_samples():
     save_image(fake_images[:1], "quantization_fake.png", normalize=True)
 
     args.w_std = 0.16
-    Gs = torch.load(args.ganpath)
+    Gs = torch.load(args.gan_path)
 
     def noise_weights(m):
         if type(m) == nn.Conv2d:
@@ -132,10 +135,9 @@ def load_G():
     global Gs
 
     if args.ganmodel == "ProGAN":
-        if args.cuda == "-1":
-            Gs = torch.load(args.ganpath, map_location="cpu")
-        else:
-            Gs = torch.load(args.ganpath)
+
+        kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
+        Gs = torch.load(args.gan_path, **kwargs)
         if args.quantize:
 
             def round_weights(m):
@@ -160,15 +162,10 @@ def load_G():
             Gs = Gs.apply(noise_weights)
 
 
-def extract_secret():
+def extract_fingerprint():
 
     batch_size = 64
-    if args.use_real_data:
-        data = torch.load(args.dataset_path)
-        fake_images = data[:64]
-        fake_images = fake_images.contiguous()
-        fake_images = fake_images.cuda()
-    elif args.ganmodel == "ProGAN":
+    if args.ganmodel == "ProGAN":
         batch_size = 64
         z_save = hypersphere(torch.randn(batch_size, 4 * 32, 1, 1))
         z_save = z_save.to(device)
@@ -181,9 +178,11 @@ def extract_secret():
 
     if args.rewatermark:
         torch.manual_seed(args.rewatermark_seed)
-        secret = generate_random_secrets(SECRET_SIZE, 1)
-        secret_batch = secret.view(1, SECRET_SIZE).expand(batch_size, SECRET_SIZE)
-        secret_batch = secret_batch.to(device)
+        fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
+        fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(
+            batch_size, SECRET_SIZE
+        )
+        fingerprint_batch = fingerprint_batch.to(device)
 
         normalized_fake = fake_images.clamp(-1, 1)
         normalized_fake = (normalized_fake + 1) / 2.0
@@ -191,48 +190,42 @@ def extract_secret():
         fake_images = fake_images * (
             1 - args.rewatermark_weight
         ) + args.rewatermark_weight * (
-            2 * EncoderNet(secret_batch, normalized_fake) - 1
+            2 * EncoderNet(fingerprint_batch, normalized_fake) - 1
         )
 
     revealed = RevealNet(fake_images)
-    rev_secret = (revealed > 0).long()
-    # save_image(rev_secret, 'revealed_after_gan.png')
+    rev_fingerprint = (revealed > 0).long()
 
     batch_size = 64
 
     if len(revealed.size()) == 2:
-        # torch.manual_seed(42)
         torch.manual_seed(args.seed)
-        secret = generate_random_secrets(SECRET_SIZE, 1)
-        secret_batch = secret.view(1, SECRET_SIZE).expand(batch_size, SECRET_SIZE)
-        secret_batch = secret_batch.to(device)
-
-        secret_batch = secret_batch.long()
-        print((secret_batch.detach() == rev_secret).float().mean().item())
-        print((secret_batch.detach() == rev_secret).float().mean(dim=1))
-
-        rev_secret_maj_vote = rev_secret.float().mean(dim=0)
-        rev_secret_maj_vote = torch.round(rev_secret_maj_vote).long()
-        rev_secret_maj_vote = rev_secret_maj_vote.view(1, -1).expand_as(rev_secret)
-        print((secret_batch.detach() == rev_secret_maj_vote).float().mean().item())
-        print((secret_batch.detach() == rev_secret_maj_vote).float().mean(dim=1))
-
-        import numpy as np
-
-        idx = np.argsort(
-            (secret_batch.detach() == rev_secret)
-            .float()
-            .mean(dim=1)
-            .cpu()
-            .detach()
-            .numpy()
+        fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
+        fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(
+            batch_size, SECRET_SIZE
         )
-        save_image(fake_images[idx], "fake_sorted.png", normalize=True)
-        print((secret_batch.detach() == rev_secret).float().mean(dim=1)[idx])
+        fingerprint_batch = fingerprint_batch.to(device)
+
+        fingerprint_batch = fingerprint_batch.long()
+        print(
+            f"Bitwise accuracy on fingerprinted images: {(fingerprint_batch.detach() == rev_fingerprint).float().mean().item()}"
+        )
+        print(
+            f"Bitwise accuracy on fingerprinted images per example: {(fingerprint_batch.detach() == rev_fingerprint).float().mean(dim=1)}"
+        )
+
+        rev_fingerprint_maj_vote = rev_fingerprint.float().mean(dim=0)
+        rev_fingerprint_maj_vote = torch.round(rev_fingerprint_maj_vote).long()
+        rev_fingerprint_maj_vote = rev_fingerprint_maj_vote.view(1, -1).expand_as(
+            rev_fingerprint
+        )
+        print(
+            f"Bitwise accuracy on fingerprinted images correcting errors with majority vote: {(fingerprint_batch.detach() == rev_fingerprint_maj_vote).float().mean().item()}"
+        )
 
 
 if __name__ == "__main__":
     load_encoder_decoder()
     save_samples()
     load_G()
-    extract_secret()
+    extract_fingerprint()
