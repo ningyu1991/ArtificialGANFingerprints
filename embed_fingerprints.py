@@ -5,9 +5,6 @@ parser.add_argument("--dataset", type=str, help="LSUN or CelebA.")
 parser.add_argument(
     "--encoder_path", type=str, help="Path to trained StegaStamp encoder."
 )
-parser.add_argument(
-    "--decoder_path", type=str, help="Path to trained StegaStamp decoder."
-)
 parser.add_argument("--data_dir", type=str, help="Directory with images.")
 parser.add_argument(
     "--output_dir", type=str, help="Path to save watermarked images to."
@@ -19,8 +16,14 @@ parser.add_argument(
     required=True,
     help="Number of bits in the fingerprint.",
 )
-parser.add_argument("--batchsize", type=int, default=50)
-parser.add_argument("--check", action="store_true")
+parser.add_argument(
+    "--check", action="store_true", help="Verify fingerprint detection accuracy."
+)
+parser.add_argument(
+    "--decoder_path",
+    type=str,
+    help="Provide trained StegaStamp decoder to verify fingerprint detection accuracy.",
+)
 parser.add_argument("--cuda", type=str, default="0")
 parser.add_argument("--changepercent", type=float, default=100.0)
 parser.add_argument("--cleanandmarked", type=bool, default=False)
@@ -31,9 +34,16 @@ parser.add_argument("--mark_only_male", type=bool, default=False)
 parser.add_argument("--drop_female", type=bool, default=False)
 parser.add_argument("--debug", type=bool, default=False)
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--output_size", type=int, default=50000)
+parser.add_argument(
+    "--fingerprint_n_images",
+    type=int,
+    default=50000,
+    help="Number of images to fingerprint.",
+)
 
 args = parser.parse_args()
+
+BATCH_SIZE = 50
 
 import os
 
@@ -93,10 +103,10 @@ def load_data():
         )
         print("loading took {}".format(time() - s))
         train_dataloader = DataLoader(
-            train_data, batch_size=args.batchsize, shuffle=False, num_workers=16
+            train_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
         )
         test_dataloader = DataLoader(
-            test_data, batch_size=args.batchsize, shuffle=False, num_workers=16
+            test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
         )
 
         IMAGE_HEIGHT = 128
@@ -126,10 +136,10 @@ def load_data():
         test_data = CelebA(train=False, ImageFolderObject=image_folder, test_size=50000)
         print("finished")
         train_dataloader = DataLoader(
-            train_data, batch_size=args.batchsize, shuffle=False, num_workers=16
+            train_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
         )
         test_dataloader = DataLoader(
-            test_data, batch_size=args.batchsize, shuffle=False, num_workers=16
+            test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
         )
 
         IMAGE_CHANNELS = 3
@@ -169,9 +179,7 @@ def check():
     global attributes
     torch.manual_seed(args.seed)
     fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
-    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(
-        args.batchsize, SECRET_SIZE
-    )
+    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprint_batch = fingerprint_batch.to(device)
 
     data, _ = next(iter(test_dataloader))
@@ -215,9 +223,7 @@ def putmark():
     print("started one epoch")
     torch.manual_seed(args.seed)
     fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
-    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(
-        args.batchsize, SECRET_SIZE
-    )
+    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprint_batch = fingerprint_batch.to(device)
 
     if not args.mark_testset:
@@ -229,13 +235,13 @@ def putmark():
 
     for i, (data, y) in tqdm(enumerate(dataloader, 0)):
         data = data.to(device)
-        if i * args.batchsize > args.output_size:
+        if (i + 1) * BATCH_SIZE > args.fingerprint_n_images:
             break
         if (
             not args.mark_n_images
-            and i * args.batchsize * 100.0 / len(dataset) < args.changepercent
+            and i * BATCH_SIZE * 100.0 / len(dataset) < args.changepercent
         ):
-            if data.size(0) < args.batchsize:
+            if data.size(0) < BATCH_SIZE:
                 fingerprint_batch = fingerprint_batch[: data.size(0)]
 
             container_img = HideNet(fingerprint_batch, data)
@@ -246,13 +252,13 @@ def putmark():
 
             if args.mark_only_male:
                 for j in range(data.size(0)):
-                    if attributes["Male"].iloc[i * args.batchsize + j] != 1:
+                    if attributes["Male"].iloc[i * BATCH_SIZE + j] != 1:
                         container_img[j] = data[j]
 
             if args.drop_female:
                 male_indices = []
                 for j in range(data.size(0)):
-                    if attributes["Male"].iloc[i * args.batchsize + j] == 1:
+                    if attributes["Male"].iloc[i * BATCH_SIZE + j] == 1:
                         male_indices.append(j)
                 # from pdb import set_trace; set_trace()
                 container_img = container_img[male_indices]
@@ -271,9 +277,19 @@ def putmark():
     dirname = os.path.join(args.output_dir, subset)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    torch.save(
-        torch.cat(data_with_fingerprint, dim=0).cpu(), os.path.join(dirname, "data.pth")
-    )
+    data_with_fingerprint = torch.cat(data_with_fingerprint, dim=0).cpu()
+    f = open(os.path.join(args.output_dir, "fingerprints.txt"), "w")
+    fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()[0]))
+    for idx in range(len(data_with_fingerprint)):
+        image = data_with_fingerprint[idx]
+        save_image(image, os.path.join(args.output_dir, f"{idx}.png"), padding=0)
+        f.write(f"{idx}.png {fingerprint_str}\n")
+    f.close()
+
+
+#     torch.save(
+#         torch.cat(data_with_fingerprint, dim=0).cpu(), os.path.join(dirname, "data.pth")
+#     )
 
 
 def main():
