@@ -1,4 +1,6 @@
 import argparse
+import glob
+import PIL
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str, help="Directory with images.")
@@ -35,7 +37,7 @@ from tqdm import tqdm
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
+from torch.utils.data import Dataset, DataLoader
 from torchvision.utils import save_image
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
@@ -47,6 +49,25 @@ if args.cuda != -1:
     device = torch.device("cuda:0")
 else:
     device = torch.device("cpu")
+
+
+class CustomImageFolder(Dataset):
+    def __init__(self, data_dir, transform=None):
+        self.data_dir = data_dir
+        self.filenames = glob.glob(os.path.join(data_dir, "*.png"))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpeg")))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpg")))
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        filename = self.filenames[idx]
+        image = PIL.Image.open(filename)
+        if self.transform:
+            image = self.transform(image)
+        return image, 0
+
+    def __len__(self):
+        return len(self.filenames)
 
 
 def load_decoder():
@@ -66,16 +87,14 @@ def load_data():
 
     SECRET_SIZE = args.fingerprint_size
 
-    from torchvision.datasets import ImageFolder
-
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
         ]
     )
     s = time()
-    print(f"Loading image_folder = ImageFolder('{args.data_dir}')...")
-    dataset = ImageFolder(args.data_dir, transform=transform)
+    print(f"Loading image folder {args.data_dir} ...")
+    dataset = CustomImageFolder(args.data_dir, transform=transform)
     print(f"Finished. Loading took {time() - s:.2f}s")
 
     IMAGE_HEIGHT = 128
@@ -107,7 +126,8 @@ def extract_fingerprints():
     for idx in range(len(all_fingerprints)):
         fingerprint = all_fingerprints[idx]
         fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))
-        f.write(f"{idx}.png {fingerprint_str}\n")
+        _, filename = os.path.split(dataset.filenames[idx])
+        f.write(f"{filename} {fingerprint_str}\n")
     f.close()
 
 
