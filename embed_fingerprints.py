@@ -1,8 +1,14 @@
 import argparse
 import os
+import glob
+import PIL
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--use_celeba_preprocessing", action="store_true", help="Use CelebA specific preprocessing when loading the images.")
+parser.add_argument(
+    "--use_celeba_preprocessing",
+    action="store_true",
+    help="Use CelebA specific preprocessing when loading the images.",
+)
 parser.add_argument(
     "--encoder_path", type=str, help="Path to trained StegaStamp encoder."
 )
@@ -18,7 +24,9 @@ parser.add_argument(
     help="Number of bits in the fingerprint.",
 )
 parser.add_argument(
-    "--identical_fingerprints", action="store_true", help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints."
+    "--identical_fingerprints",
+    action="store_true",
+    help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints.",
 )
 parser.add_argument(
     "--check", action="store_true", help="Validate fingerprint detection accuracy."
@@ -28,7 +36,9 @@ parser.add_argument(
     type=str,
     help="Provide trained StegaStamp decoder to verify fingerprint detection accuracy.",
 )
-parser.add_argument("--seed", type=int, default=42, help="Random seed to sample fingerprints.")
+parser.add_argument(
+    "--seed", type=int, default=42, help="Random seed to sample fingerprints."
+)
 parser.add_argument("--cuda", type=int, default=0)
 
 
@@ -51,7 +61,6 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import MNIST
 from torchvision import transforms
 from torchvision.utils import save_image
-from torchvision.datasets import ImageFolder
 
 
 def generate_random_fingerprints(fingerprint_size, batch_size=4):
@@ -69,13 +78,30 @@ else:
     device = torch.device("cuda:0")
 
 
+class CustomImageFolder(Dataset):
+    def __init__(self, data_dir, transform=None):
+        self.data_dir = data_dir
+        self.filenames = glob.glob(os.path.join(data_dir, "*.png"))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpeg")))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpg")))
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        filename = self.filenames[idx]
+        image = PIL.Image.open(filename)
+        if self.transform:
+            image = self.transform(image)
+        return image, 0
+
+    def __len__(self):
+        return len(self.filenames)
+
+
 def load_data():
     global dataset, dataloader
     global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
 
     SECRET_SIZE = args.fingerprint_size
-
-    from torchvision.datasets import ImageFolder
 
     if args.use_celeba_preprocessing:
         transform = transforms.Compose(
@@ -96,13 +122,14 @@ def load_data():
         )
 
     s = time()
-    print(f"Loading image_folder = ImageFolder('{args.data_dir}')...")
-    dataset = ImageFolder(args.data_dir, transform=transform)
+    print(f"Loading image folder {args.data_dir} ...")
+    dataset = CustomImageFolder(args.data_dir, transform=transform)
     print(f"Finished. Loading took {time() - s:.2f}s")
 
     IMAGE_HEIGHT = 128
     IMAGE_WIDTH = 128
     IMAGE_CHANNELS = 3
+
 
 def load_models():
     global HideNet, RevealNet
@@ -135,7 +162,9 @@ def check():
     fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprint_batch = fingerprint_batch.to(device)
 
-    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16)
+    dataloader = DataLoader(
+        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
+    )
     data, _ = next(iter(dataloader))
     data = data.to(device)
 
@@ -145,8 +174,14 @@ def check():
     rev_without_fingerprint_img = RevealNet(data)
 
     save_image(data, os.path.join(args.output_dir, "test_clean_image.png"))
-    save_image(container_img, os.path.join(args.output_dir, "test_fingerprinted_image.png"))
-    save_image(torch.abs(container_img - data), os.path.join(args.output_dir, "test_residual.png"), normalize=True)
+    save_image(
+        container_img, os.path.join(args.output_dir, "test_fingerprinted_image.png")
+    )
+    save_image(
+        torch.abs(container_img - data),
+        os.path.join(args.output_dir, "test_residual.png"),
+        normalize=True,
+    )
 
     rev_fingerprint = (rev_fingerprint_img > 0).long()
     rev_without_fingerprint = (rev_without_fingerprint_img > 0).long()
@@ -176,7 +211,9 @@ def putmark():
     fingerprints = fingerprints.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprints = fingerprints.to(device)
 
-    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16)
+    dataloader = DataLoader(
+        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
+    )
 
     torch.manual_seed(args.seed)
 
@@ -195,10 +232,8 @@ def putmark():
         all_fingerprints.append(fingerprints[: images.size(0)].detach().cpu())
 
     dirname = args.output_dir
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    if not os.path.exists(os.path.join(dirname, "images")):
-        os.makedirs(os.path.join(dirname, "images"))
+    if not os.path.exists(os.path.join(dirname, "fingerprinted_images")):
+        os.makedirs(os.path.join(dirname, "fingerprinted_images"))
 
     all_fingerprinted_images = torch.cat(all_fingerprinted_images, dim=0).cpu()
     all_fingerprints = torch.cat(all_fingerprints, dim=0).cpu()
@@ -206,9 +241,14 @@ def putmark():
     for idx in range(len(all_fingerprinted_images)):
         image = all_fingerprinted_images[idx]
         fingerprint = all_fingerprints[idx]
-        save_image(image, os.path.join(args.output_dir, "images", f"{idx}.png"), padding=0)
+        _, filename = os.path.split(dataset.filenames[idx])
+        save_image(
+            image,
+            os.path.join(args.output_dir, "fingerprinted_images", f"{filename}"),
+            padding=0,
+        )
         fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))
-        f.write(f"{idx}.png {fingerprint_str}\n")
+        f.write(f"{filename} {fingerprint_str}\n")
     f.close()
 
 
