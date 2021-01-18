@@ -123,7 +123,7 @@ def extract_fingerprints():
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     all_fingerprints = torch.cat(all_fingerprints, dim=0).cpu()
-    f = open(os.path.join(args.output_dir, "fingerprints.txt"), "w")
+    f = open(os.path.join(args.output_dir, "detected_fingerprints.txt"), "w")
     for idx in range(len(all_fingerprints)):
         fingerprint = all_fingerprints[idx]
         fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))

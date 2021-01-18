@@ -191,7 +191,7 @@ def putmark():
 
     all_fingerprinted_images = torch.cat(all_fingerprinted_images, dim=0).cpu()
     all_fingerprints = torch.cat(all_fingerprints, dim=0).cpu()
-    f = open(os.path.join(args.output_dir, "fingerprints.txt"), "w")
+    f = open(os.path.join(args.output_dir, "embedded_fingerprints.txt"), "w")
     for idx in range(len(all_fingerprinted_images)):
         image = all_fingerprinted_images[idx]
         fingerprint = all_fingerprints[idx]
