@@ -317,7 +317,6 @@ This is another variant from the above regular GAN classifier. Given images of s
   --data_dir /path/to/images/ \
   --output_dir ./output/ \
   --fingerprint_size 100 \
-  --cuda 0 \
   --use_celeba_preprocessing \
   --identical_fingerprints
   ```

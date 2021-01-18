@@ -89,7 +89,8 @@ def load_data():
 
         transform = transforms.Compose(
             [
-                transforms.Resize((128, 128)),
+                transforms.Resize(128),
+                transforms.CenterCrop(128),
                 transforms.ToTensor(),
             ]
         )
