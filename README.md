@@ -306,28 +306,27 @@ This is another variant from the above regular GAN classifier. Given images of s
   ```
   python train.py \
   --dataset CelebA \
-  --data_dir /path/to/images \
-  --output_dir /path/to/save/results \
+  --data_dir /path/to/images/ \
+  --output_dir ./output/ \
   --fingerprint_size 100 
   ```
 - **Embed fingerprints**. Run, e.g.,
   ```
   python embed_fingerprints.py \
-  --dataset CelebA \
   --encoder_path ./saved_models/celeba_encoder.pth \
-  --decoder_path ./saved_models/celeba_decoder.pth \
-  --data_dir /path/to/dataset/ \
-  --output_dir ./output/stegastamp_CelebA \
-  --batchsize 50 \
-  --output_size 100 \
+  --data_dir /path/to/images/ \
+  --output_dir ./output/ \
   --fingerprint_size 100 \
-  --check
+  --cuda 0 \
+  --use_celeba_preprocessing \
+  --identical_fingerprints
   ```
 - **Detect fingerprints**. Run, e.g.,
   ```
   python detect_fingerprints.py \
   --decoder_path ./saved_models/celeba_decoder.pth \
   --fingerprint_size 100 \
-  --gan_path ./saved_models/progan_celeba_generator.pth
+  --data_dir /path/to/images/ \
+  --output_dir ./output/ \
   ```
 
