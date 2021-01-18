@@ -147,7 +147,7 @@ def load_models():
     RevealNet = RevealNet.to(device)
 
 
-def putmark():
+def embed_fingerprints():
     all_fingerprinted_images = []
     all_fingerprints = []
 
@@ -182,7 +182,7 @@ def putmark():
         if args.check:
             detected_fingerprints = RevealNet(fingerprinted_images)
             detected_fingerprints = (detected_fingerprints > 0).long()
-            bitwise_accuracy += (detected_fingerprints.detach() == fingerprints).float().mean(dim=1).sum().item()
+            bitwise_accuracy += (detected_fingerprints[: images.size(0)].detach() == fingerprints[: images.size(0)]).float().mean(dim=1).sum().item()
 
 
     dirname = args.output_dir
@@ -216,7 +216,7 @@ def main():
     load_data()
     load_models()
 
-    putmark()
+    embed_fingerprints()
 
 
 if __name__ == "__main__":
