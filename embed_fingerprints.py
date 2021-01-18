@@ -1,7 +1,8 @@
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", type=str, help="LSUN or CelebA.")
+parser.add_argument("--use_celeba_preprocessing", action="store_true", help="Use CelebA specific preprocessing when loading the images.")
 parser.add_argument(
     "--encoder_path", type=str, help="Path to trained StegaStamp encoder."
 )
@@ -17,38 +18,30 @@ parser.add_argument(
     help="Number of bits in the fingerprint.",
 )
 parser.add_argument(
-    "--check", action="store_true", help="Verify fingerprint detection accuracy."
+    "--identical_fingerprints", action="store_true", help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints."
+)
+parser.add_argument(
+    "--check", action="store_true", help="Validate fingerprint detection accuracy."
 )
 parser.add_argument(
     "--decoder_path",
     type=str,
     help="Provide trained StegaStamp decoder to verify fingerprint detection accuracy.",
 )
-parser.add_argument("--cuda", type=str, default="0")
-parser.add_argument("--changepercent", type=float, default=100.0)
-parser.add_argument("--cleanandmarked", type=bool, default=False)
-parser.add_argument("--mark_n_images", type=int, default=0)
-parser.add_argument("--mark_only_class", type=int, default=-1)
-parser.add_argument("--mark_testset", type=bool, default=False)
-parser.add_argument("--mark_only_male", type=bool, default=False)
-parser.add_argument("--drop_female", type=bool, default=False)
-parser.add_argument("--debug", type=bool, default=False)
-parser.add_argument("--seed", type=int, default=42)
-parser.add_argument(
-    "--fingerprint_n_images",
-    type=int,
-    default=50000,
-    help="Number of images to fingerprint.",
-)
+parser.add_argument("--seed", type=int, default=42, help="Random seed to sample fingerprints.")
+parser.add_argument("--cuda", type=int, default=0)
+
 
 args = parser.parse_args()
 
+if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir)
+
 BATCH_SIZE = 50
 
-import os
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda)
 
 from time import time
 from tqdm import tqdm
@@ -77,14 +70,22 @@ else:
 
 
 def load_data():
-    global train_data, test_data, train_dataloader, test_dataloader, val_data, val_dataloader
+    global dataset, dataloader
     global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
-    global attributes
 
     SECRET_SIZE = args.fingerprint_size
 
-    if args.dataset == "LSUN":
-        from torchvision.datasets import ImageFolder
+    from torchvision.datasets import ImageFolder
+
+    if args.use_celeba_preprocessing:
+        transform = transforms.Compose(
+            [
+                transforms.CenterCrop(148),
+                transforms.Resize(128),
+                transforms.ToTensor(),
+            ]
+        )
+    else:
 
         transform = transforms.Compose(
             [
@@ -93,63 +94,14 @@ def load_data():
             ]
         )
 
-        s = time()
-        print("loading data...")
-        train_data = ImageFolder(
-            os.path.join(args.data_dir, "train"), transform=transform
-        )
-        test_data = ImageFolder(
-            os.path.join(args.data_dir, "test"), transform=transform
-        )
-        print("loading took {}".format(time() - s))
-        train_dataloader = DataLoader(
-            train_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-        )
-        test_dataloader = DataLoader(
-            test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-        )
+    s = time()
+    print(f"Loading image_folder = ImageFolder('{args.data_dir}')...")
+    dataset = ImageFolder(args.data_dir, transform=transform)
+    print(f"Finished. Loading took {time() - s:.2f}s")
 
-        IMAGE_HEIGHT = 128
-        IMAGE_WIDTH = 128
-        IMAGE_CHANNELS = 3
-    elif args.dataset == "CelebA":
-
-        from celeba_dataset import CelebA
-        from torchvision.datasets import ImageFolder
-
-        # https://github.com/andersbll/autoencoding_beyond_pixels/blob/24aa0f20f1a73a3886551e065bbda818ad139ac2/dataset/celeba.py#L40
-        transform = transforms.Compose(
-            [
-                transforms.CenterCrop(148),
-                transforms.Resize(128),
-                transforms.ToTensor(),
-            ]
-        )
-        print(f"image_folder = ImageFolder('{args.data_dir}', transform=transform)...")
-        image_folder = ImageFolder(args.data_dir, transform=transform)
-        print("finished")
-
-        print("train_data = CelebA(train=True)...")
-        train_data = CelebA(train=True, ImageFolderObject=image_folder)
-        print("finished")
-        print("train_data = CelebA(train=False)...")
-        test_data = CelebA(train=False, ImageFolderObject=image_folder, test_size=50000)
-        print("finished")
-        train_dataloader = DataLoader(
-            train_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-        )
-        test_dataloader = DataLoader(
-            test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-        )
-
-        IMAGE_CHANNELS = 3
-        IMAGE_HEIGHT = 128
-        IMAGE_WIDTH = 128
-    else:
-        raise ValueError(
-            f"Unrecognized dataset option {args.dataset}. Expected CelebA or LSUN."
-        )
-
+    IMAGE_HEIGHT = 128
+    IMAGE_WIDTH = 128
+    IMAGE_CHANNELS = 3
 
 def load_models():
     global HideNet, RevealNet
@@ -168,7 +120,8 @@ def load_models():
     )
 
     kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
-    RevealNet.load_state_dict(torch.load(args.decoder_path), **kwargs)
+    if args.check:
+        RevealNet.load_state_dict(torch.load(args.decoder_path), **kwargs)
     HideNet.load_state_dict(torch.load(args.encoder_path, **kwargs))
 
     HideNet = HideNet.to(device)
@@ -176,30 +129,23 @@ def load_models():
 
 
 def check():
-    global attributes
     torch.manual_seed(args.seed)
     fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
     fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprint_batch = fingerprint_batch.to(device)
 
-    data, _ = next(iter(test_dataloader))
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16)
+    data, _ = next(iter(dataloader))
     data = data.to(device)
 
     container_img = HideNet(fingerprint_batch, data)
 
-    if args.mark_only_male:
-        for j in range(data.size(0)):
-            if attributes["Male"].iloc[j] != 1:
-                container_img[j] = data[j]
-
     rev_fingerprint_img = RevealNet(container_img)
     rev_without_fingerprint_img = RevealNet(data)
 
-    save_image(data, "clean.png")
-    save_image(
-        container_img, "with_fingerprint_{}_bits.png".format(args.fingerprint_size)
-    )
-    save_image(torch.abs(container_img - data), "diff.png", normalize=True)
+    save_image(data, os.path.join(args.output_dir, "test_clean_image.png"))
+    save_image(container_img, os.path.join(args.output_dir, "test_fingerprinted_image.png"))
+    save_image(torch.abs(container_img - data), os.path.join(args.output_dir, "test_residual.png"), normalize=True)
 
     rev_fingerprint = (rev_fingerprint_img > 0).long()
     rev_without_fingerprint = (rev_without_fingerprint_img > 0).long()
@@ -218,71 +164,49 @@ def check():
 
 
 def putmark():
-    data_with_fingerprint = []
+    all_fingerprinted_images = []
+    all_fingerprints = []
 
-    print("started one epoch")
+    print("Fingerprinting the images...")
     torch.manual_seed(args.seed)
-    fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
-    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
-    fingerprint_batch = fingerprint_batch.to(device)
 
-    if not args.mark_testset:
-        dataloader = train_dataloader
-        dataset = train_data
-    else:
-        dataloader = test_dataloader
-        dataset = test_data
+    # generate identical fingerprints
+    fingerprints = generate_random_fingerprints(SECRET_SIZE, 1)
+    fingerprints = fingerprints.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
+    fingerprints = fingerprints.to(device)
 
-    for i, (data, y) in tqdm(enumerate(dataloader, 0)):
-        data = data.to(device)
-        if (i + 1) * BATCH_SIZE > args.fingerprint_n_images:
-            break
-        if (
-            not args.mark_n_images
-            and i * BATCH_SIZE * 100.0 / len(dataset) < args.changepercent
-        ):
-            if data.size(0) < BATCH_SIZE:
-                fingerprint_batch = fingerprint_batch[: data.size(0)]
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16)
 
-            container_img = HideNet(fingerprint_batch, data)
+    torch.manual_seed(args.seed)
 
-            for j in range(data.size(0)):
-                if args.mark_only_class != -1 and y[j].item() != args.mark_only_class:
-                    container_img[j] = data[j]
+    for images, _ in tqdm(dataloader):
 
-            if args.mark_only_male:
-                for j in range(data.size(0)):
-                    if attributes["Male"].iloc[i * BATCH_SIZE + j] != 1:
-                        container_img[j] = data[j]
+        # generate arbitrary fingerprints
+        if not args.identical_fingerprints:
+            fingerprints = generate_random_fingerprints(SECRET_SIZE, BATCH_SIZE)
+            fingerprints = fingerprints.view(BATCH_SIZE, SECRET_SIZE)
+            fingerprints = fingerprints.to(device)
 
-            if args.drop_female:
-                male_indices = []
-                for j in range(data.size(0)):
-                    if attributes["Male"].iloc[i * BATCH_SIZE + j] == 1:
-                        male_indices.append(j)
-                # from pdb import set_trace; set_trace()
-                container_img = container_img[male_indices]
-                save_image(container_img, "female_dropped.png")
-                alkdjf
+        images = images.to(device)
 
-            data_with_fingerprint.append(container_img.detach().cpu())
-            if args.cleanandmarked:
-                data_with_fingerprint.append(data.cpu())
-        else:
-            if i == 0 and args.mark_n_images:
-                data = data[args.mark_n_images :]
-            data_with_fingerprint.append(data.cpu())
+        fingerprinted_images = HideNet(fingerprints[: images.size(0)], images)
+        all_fingerprinted_images.append(fingerprinted_images.detach().cpu())
+        all_fingerprints.append(fingerprints[: images.size(0)].detach().cpu())
 
-    subset = "train" if not args.mark_testset else "test"
-    dirname = os.path.join(args.output_dir, subset)
+    dirname = args.output_dir
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    data_with_fingerprint = torch.cat(data_with_fingerprint, dim=0).cpu()
+    if not os.path.exists(os.path.join(dirname, "images")):
+        os.makedirs(os.path.join(dirname, "images"))
+
+    all_fingerprinted_images = torch.cat(all_fingerprinted_images, dim=0).cpu()
+    all_fingerprints = torch.cat(all_fingerprints, dim=0).cpu()
     f = open(os.path.join(args.output_dir, "fingerprints.txt"), "w")
-    fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()[0]))
-    for idx in range(len(data_with_fingerprint)):
-        image = data_with_fingerprint[idx]
-        save_image(image, os.path.join(args.output_dir, f"{idx}.png"), padding=0)
+    for idx in range(len(all_fingerprinted_images)):
+        image = all_fingerprinted_images[idx]
+        fingerprint = all_fingerprints[idx]
+        save_image(image, os.path.join(args.output_dir, "images", f"{idx}.png"), padding=0)
+        fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))
         f.write(f"{idx}.png {fingerprint_str}\n")
     f.close()
 
