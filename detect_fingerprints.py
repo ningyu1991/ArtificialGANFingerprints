@@ -57,6 +57,7 @@ class CustomImageFolder(Dataset):
         self.filenames = glob.glob(os.path.join(data_dir, "*.png"))
         self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpeg")))
         self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpg")))
+        self.filenames = sorted(self.filenames)
         self.transform = transform
 
     def __getitem__(self, idx):
@@ -107,7 +108,7 @@ def extract_fingerprints():
     all_fingerprints = []
 
     BATCH_SIZE = 50
-    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16)
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
     for images, _ in tqdm(dataloader):
         images = images.to(device)
@@ -127,6 +128,7 @@ def extract_fingerprints():
         fingerprint = all_fingerprints[idx]
         fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))
         _, filename = os.path.split(dataset.filenames[idx])
+        filename = filename.split('.')[0] + ".png"
         f.write(f"{filename} {fingerprint_str}\n")
     f.close()
 

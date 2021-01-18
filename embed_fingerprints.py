@@ -4,11 +4,7 @@ import glob
 import PIL
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--use_celeba_preprocessing",
-    action="store_true",
-    help="Use CelebA specific preprocessing when loading the images.",
-)
+parser.add_argument("--use_celeba_preprocessing", action="store_true", help="Use CelebA specific preprocessing when loading the images.")
 parser.add_argument(
     "--encoder_path", type=str, help="Path to trained StegaStamp encoder."
 )
@@ -24,9 +20,7 @@ parser.add_argument(
     help="Number of bits in the fingerprint.",
 )
 parser.add_argument(
-    "--identical_fingerprints",
-    action="store_true",
-    help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints.",
+    "--identical_fingerprints", action="store_true", help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints."
 )
 parser.add_argument(
     "--check", action="store_true", help="Validate fingerprint detection accuracy."
@@ -36,9 +30,7 @@ parser.add_argument(
     type=str,
     help="Provide trained StegaStamp decoder to verify fingerprint detection accuracy.",
 )
-parser.add_argument(
-    "--seed", type=int, default=42, help="Random seed to sample fingerprints."
-)
+parser.add_argument("--seed", type=int, default=42, help="Random seed to sample fingerprints.")
 parser.add_argument("--cuda", type=int, default=0)
 
 
@@ -58,7 +50,6 @@ from tqdm import tqdm
 
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision.datasets import MNIST
 from torchvision import transforms
 from torchvision.utils import save_image
 
@@ -84,6 +75,7 @@ class CustomImageFolder(Dataset):
         self.filenames = glob.glob(os.path.join(data_dir, "*.png"))
         self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpeg")))
         self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpg")))
+        self.filenames = sorted(self.filenames)
         self.transform = transform
 
     def __getitem__(self, idx):
@@ -96,12 +88,12 @@ class CustomImageFolder(Dataset):
     def __len__(self):
         return len(self.filenames)
 
-
 def load_data():
     global dataset, dataloader
     global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
 
     SECRET_SIZE = args.fingerprint_size
+
 
     if args.use_celeba_preprocessing:
         transform = transforms.Compose(
@@ -130,7 +122,6 @@ def load_data():
     IMAGE_WIDTH = 128
     IMAGE_CHANNELS = 3
 
-
 def load_models():
     global HideNet, RevealNet
 
@@ -156,49 +147,6 @@ def load_models():
     RevealNet = RevealNet.to(device)
 
 
-def check():
-    torch.manual_seed(args.seed)
-    fingerprint = generate_random_fingerprints(SECRET_SIZE, 1)
-    fingerprint_batch = fingerprint.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
-    fingerprint_batch = fingerprint_batch.to(device)
-
-    dataloader = DataLoader(
-        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-    )
-    data, _ = next(iter(dataloader))
-    data = data.to(device)
-
-    container_img = HideNet(fingerprint_batch, data)
-
-    rev_fingerprint_img = RevealNet(container_img)
-    rev_without_fingerprint_img = RevealNet(data)
-
-    save_image(data, os.path.join(args.output_dir, "test_clean_image.png"))
-    save_image(
-        container_img, os.path.join(args.output_dir, "test_fingerprinted_image.png")
-    )
-    save_image(
-        torch.abs(container_img - data),
-        os.path.join(args.output_dir, "test_residual.png"),
-        normalize=True,
-    )
-
-    rev_fingerprint = (rev_fingerprint_img > 0).long()
-    rev_without_fingerprint = (rev_without_fingerprint_img > 0).long()
-    fingerprint_batch = fingerprint_batch.long()
-    print(
-        f"Bitwise accuracy on fingerprinted images per example: {(fingerprint_batch.detach() == rev_fingerprint).float().mean(dim=1)}"
-    )
-    print(
-        f"Bitwise accuracy on fingerprinted images: {(fingerprint_batch.detach() == rev_fingerprint).float().mean().item()}"
-    )
-    print(
-        f"Bitwise accuracy on non-fingerprinted images: {(fingerprint_batch.detach() == rev_without_fingerprint).float().mean().item()}"
-    )
-    # save_image(fingerprint_batch.detach(), 'fingerprint.png')
-    # save_image(rev_fingerprint, 'revealed.png')
-
-
 def putmark():
     all_fingerprinted_images = []
     all_fingerprints = []
@@ -211,11 +159,11 @@ def putmark():
     fingerprints = fingerprints.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
     fingerprints = fingerprints.to(device)
 
-    dataloader = DataLoader(
-        dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16
-    )
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
     torch.manual_seed(args.seed)
+
+    bitwise_accuracy = 0
 
     for images, _ in tqdm(dataloader):
 
@@ -231,6 +179,12 @@ def putmark():
         all_fingerprinted_images.append(fingerprinted_images.detach().cpu())
         all_fingerprints.append(fingerprints[: images.size(0)].detach().cpu())
 
+        if args.check:
+            detected_fingerprints = RevealNet(fingerprinted_images)
+            detected_fingerprints = (detected_fingerprints > 0).long()
+            bitwise_accuracy += (detected_fingerprints.detach() == fingerprints).float().mean(dim=1).sum().item()
+
+
     dirname = args.output_dir
     if not os.path.exists(os.path.join(dirname, "fingerprinted_images")):
         os.makedirs(os.path.join(dirname, "fingerprinted_images"))
@@ -242,19 +196,19 @@ def putmark():
         image = all_fingerprinted_images[idx]
         fingerprint = all_fingerprints[idx]
         _, filename = os.path.split(dataset.filenames[idx])
-        save_image(
-            image,
-            os.path.join(args.output_dir, "fingerprinted_images", f"{filename}"),
-            padding=0,
-        )
+        filename = filename.split('.')[0] + ".png"
+        save_image(image, os.path.join(args.output_dir, "fingerprinted_images", f"{filename}"), padding=0)
         fingerprint_str = "".join(map(str, fingerprint.cpu().long().numpy().tolist()))
         f.write(f"{filename} {fingerprint_str}\n")
     f.close()
 
+    if args.check:
+        bitwise_accuracy = bitwise_accuracy / len(all_fingerprints)
+        print(f"Bitwise accuracy on fingerprinted images: {bitwise_accuracy}")
 
-#     torch.save(
-#         torch.cat(data_with_fingerprint, dim=0).cpu(), os.path.join(dirname, "data.pth")
-#     )
+        save_image(images[:49], os.path.join(args.output_dir, "test_samples_clean.png"), nrow=7)
+        save_image(fingerprinted_images[:49], os.path.join(args.output_dir, "test_samples_fingerprinted.png"), nrow=7)
+        save_image(torch.abs(images - fingerprinted_images)[:49], os.path.join(args.output_dir, "test_samples_residual.png"), normalize=True, nrow=7)
 
 
 def main():
@@ -262,10 +216,7 @@ def main():
     load_data()
     load_models()
 
-    if args.check:
-        check()
-    else:
-        putmark()
+    putmark()
 
 
 if __name__ == "__main__":
