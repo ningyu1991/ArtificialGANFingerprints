@@ -307,6 +307,7 @@ This is another variant from the above regular GAN classifier. Given images of s
   python train.py \
   --data_dir /path/to/images/ \
   --output_dir ./output/ \
+  --use_celeba_preprocessing \
   --fingerprint_size 100 
   ```
 - **Embed fingerprints**. Run, e.g.,
