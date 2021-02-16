@@ -5,6 +5,11 @@ parser.add_argument(
     "--data_dir", type=str, required=True, help="Directory with image dataset."
 )
 parser.add_argument(
+    "--use_celeba_preprocessing",
+    action="store_true",
+    help="Use CelebA specific preprocessing when loading the images.",
+)
+parser.add_argument(
     "--output_dir", type=str, required=True, help="Directory to save results to."
 )
 parser.add_argument(
@@ -14,7 +19,6 @@ parser.add_argument(
     required=True,
     help="Number of bits in the fingerprint.",
 )
-parser.add_argument("--dataset", type=str, required=True, help="CelebA or LSUN.")
 parser.add_argument(
     "--num_epochs", type=int, default=20, help="Number of training epochs."
 )
@@ -41,21 +45,21 @@ parser.add_argument("--BCE_loss_scale", type=float, default=1, help="BCE loss we
 args = parser.parse_args()
 
 
+import glob
 import os
+from os.path import join
+from time import time
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda)
 from datetime import datetime
 
 from tqdm import tqdm
-from time import time
-import os
-import models
-from os.path import join
+import PIL
 
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.utils import make_grid
 from torchvision.datasets import ImageFolder
@@ -64,11 +68,14 @@ from tensorboardX import SummaryWriter
 
 from torch.optim import Adam
 
-writer = SummaryWriter()
+import models
+
 
 LOGS_PATH = os.path.join(args.output_dir, "logs")
 CHECKPOINTS_PATH = os.path.join(args.output_dir, "checkpoints")
 SAVED_IMAGES = os.path.join(args.output_dir, "./saved_images")
+
+writer = SummaryWriter(LOGS_PATH)
 
 if not os.path.exists(LOGS_PATH):
     os.makedirs(LOGS_PATH)
@@ -90,17 +97,33 @@ plot_points = (
 )
 
 
-def main():
-    now = datetime.now()
-    dt_string = now.strftime("%d%m%Y_%H:%M:%S")
-    EXP_NAME = f"stegastamp_{args.dataset}_{args.fingerprint_size}_{dt_string}"
+class CustomImageFolder(Dataset):
+    def __init__(self, data_dir, transform=None):
+        self.data_dir = data_dir
+        self.filenames = glob.glob(os.path.join(data_dir, "*.png"))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpeg")))
+        self.filenames.extend(glob.glob(os.path.join(data_dir, "*.jpg")))
+        self.filenames = sorted(self.filenames)
+        self.transform = transform
 
-    device = torch.device("cuda")
+    def __getitem__(self, idx):
+        filename = self.filenames[idx]
+        image = PIL.Image.open(filename)
+        if self.transform:
+            image = self.transform(image)
+        return image, 0
 
-    if args.dataset == "CelebA":
-        from celeba_dataset import CelebA
+    def __len__(self):
+        return len(self.filenames)
 
-        # https://github.com/andersbll/autoencoding_beyond_pixels/blob/24aa0f20f1a73a3886551e065bbda818ad139ac2/dataset/celeba.py#L40
+
+def load_data():
+    global dataset, dataloader
+    global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
+
+    SECRET_SIZE = args.fingerprint_size
+
+    if args.use_celeba_preprocessing:
         transform = transforms.Compose(
             [
                 transforms.CenterCrop(148),
@@ -108,36 +131,34 @@ def main():
                 transforms.ToTensor(),
             ]
         )
+    else:
 
-        print("Reading data...")
-        image_folder = ImageFolder(args.data_dir, transform=transform)
-        data = CelebA(train=True, ImageFolderObject=image_folder)
-        print("Finished reading.")
-        IMAGE_HEIGHT = 128
-        IMAGE_WIDTH = 128
-        IMAGE_CHANNELS = 3
-
-    elif args.dataset == "LSUN":
         transform = transforms.Compose(
             [
-                transforms.Resize((128, 128)),
+                transforms.Resize(128),
+                transforms.CenterCrop(128),
                 transforms.ToTensor(),
             ]
         )
 
-        s = time()
-        print("loading data...")
-        data = ImageFolder(args.data_dir, transform=transform)
-        print("loading took {}".format(time() - s))
+    s = time()
+    print(f"Loading image folder {args.data_dir} ...")
+    dataset = CustomImageFolder(args.data_dir, transform=transform)
+    print(f"Finished. Loading took {time() - s:.2f}s")
 
-        IMAGE_HEIGHT = args.resolution
-        IMAGE_WIDTH = args.resolution
-        IMAGE_CHANNELS = 3
-    else:
-        raise ValueError(
-            f"Unrecognized dataset option {args.dataset}. Expected CelebA or LSUN."
-        )
+    IMAGE_HEIGHT = 128
+    IMAGE_WIDTH = 128
+    IMAGE_CHANNELS = 3
 
+
+def main():
+    now = datetime.now()
+    dt_string = now.strftime("%d%m%Y_%H:%M:%S")
+    EXP_NAME = f"stegastamp_{args.fingerprint_size}_{dt_string}"
+
+    device = torch.device("cuda")
+
+    load_data()
     encoder = models.StegaStampEncoder(
         secret_size=args.fingerprint_size,
         height=IMAGE_HEIGHT,
@@ -159,10 +180,11 @@ def main():
     )
 
     global_step = 0
+    steps_since_l2_loss_activated = -1
 
     for i_epoch in range(args.num_epochs):
         dataloader = DataLoader(
-            data, batch_size=args.batch_size, shuffle=True, num_workers=16
+            dataset, batch_size=args.batch_size, shuffle=True, num_workers=16
         )
         for images, _ in tqdm(dataloader):
             global_step += 1
@@ -176,7 +198,7 @@ def main():
                 max(
                     0,
                     args.l2_loss_scale
-                    * (global_step - args.l2_loss_await)
+                    * (steps_since_l2_loss_activated - args.l2_loss_await)
                     / args.l2_loss_ramp,
                 ),
                 args.l2_loss_scale,
@@ -209,6 +231,11 @@ def main():
             bitwise_accuracy = 1.0 - torch.mean(
                 torch.abs(fingerprints - fingerprints_predicted)
             )
+            if steps_since_l2_loss_activated == -1:
+                if bitwise_accuracy.item() > 0.9:
+                    steps_since_l2_loss_activated = 0
+            else:
+                steps_since_l2_loss_activated += 1
 
             # Logging
             if global_step in plot_points:
