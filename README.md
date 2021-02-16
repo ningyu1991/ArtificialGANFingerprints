@@ -305,7 +305,6 @@ This is another variant from the above regular GAN classifier. Given images of s
 - **Train encoder**. Run, e.g.,
   ```
   python train.py \
-  --dataset CelebA \
   --data_dir /path/to/images/ \
   --output_dir ./output/ \
   --fingerprint_size 100 

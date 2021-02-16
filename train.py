@@ -32,7 +32,12 @@ parser.add_argument(
     type=int,
     default=1000,
 )
-parser.add_argument("--l2_loss_scale", type=float, default=10, help="L2 loss weight.")
+parser.add_argument(
+    "--l2_loss_weight",
+    type=float,
+    default=10,
+    help="L2 loss weight for image fidelity.",
+)
 parser.add_argument(
     "--l2_loss_ramp",
     type=int,
@@ -40,7 +45,12 @@ parser.add_argument(
     help="Linearly increase L2 loss weight over x iterations.",
 )
 
-parser.add_argument("--BCE_loss_scale", type=float, default=1, help="BCE loss weight.")
+parser.add_argument(
+    "--BCE_loss_weight",
+    type=float,
+    default=1,
+    help="BCE loss weight for fingerprint reconstruction.",
+)
 
 args = parser.parse_args()
 
@@ -194,16 +204,16 @@ def main():
                 args.fingerprint_size, batch_size, (IMAGE_HEIGHT, IMAGE_WIDTH)
             )
 
-            l2_loss_scale = min(
+            l2_loss_weight = min(
                 max(
                     0,
-                    args.l2_loss_scale
+                    args.l2_loss_weight
                     * (steps_since_l2_loss_activated - args.l2_loss_await)
                     / args.l2_loss_ramp,
                 ),
-                args.l2_loss_scale,
+                args.l2_loss_weight,
             )
-            BCE_loss_scale = args.BCE_loss_scale
+            BCE_loss_weight = args.BCE_loss_weight
 
             clean_images = images.to(device)
             fingerprints = fingerprints.to(device)
@@ -219,7 +229,7 @@ def main():
             criterion = nn.BCEWithLogitsLoss()
             BCE_loss = criterion(decoder_output.view(-1), fingerprints.view(-1))
 
-            loss = l2_loss_scale * l2_loss + BCE_loss_scale * BCE_loss
+            loss = l2_loss_weight * l2_loss + BCE_loss_weight * BCE_loss
 
             encoder.zero_grad()
             decoder.zero_grad()
@@ -294,11 +304,11 @@ def main():
                 )
 
                 writer.add_scalar(
-                    "loss_scales/l2_loss_scale", l2_loss_scale, global_step
+                    "loss_weights/l2_loss_weight", l2_loss_weight, global_step
                 )
                 writer.add_scalar(
-                    "loss_scales/BCE_loss_scale",
-                    BCE_loss_scale,
+                    "loss_weights/BCE_loss_weight",
+                    BCE_loss_weight,
                     global_step,
                 )
 
