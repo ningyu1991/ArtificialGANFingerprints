@@ -37,10 +37,12 @@ Our approach first embeds fingerprints into the training data, we then show a su
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using the CelebA dataset.
-  - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` corresponds to the fingerprint encoder and decoder respectively.
+  - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` correspond to the fingerprint encoder and decoder respectively.
 
 ## Pre-trained fingerprint autoencoder models
 - The pre-trained models can be downloaded from:
+  - [CelebA 128x128](https://drive.google.com/drive/folders/1C_gdRlyVsS1XHByclaBzRJ8t27fV_rDY?usp=sharing)
+  - [LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1_5jD5vvblmU51y87FXwoFE8DNixsG8-7?usp=sharing)
 
 ## Fingerprint embedding and detection
   
