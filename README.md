@@ -19,9 +19,9 @@ Our approach first embeds fingerprints into the training data, we then show a su
   
 ## Datasets
 - We experiment on six datasets. Download and unzip images into a folder.
-  - [CelebA in-the-wild images](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing). All images for fingerprint autoencoder training. 150k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
-  - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
-  - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [CelebA in-the-wild images](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing). All images for fingerprint autoencoder training. 150k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). All images for fingerprint autoencoder training and [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch) training/evaluation.
   - [CycleGAN horse2zebra](https://github.com/taesungp/contrastive-unpaired-translation/blob/master/docs/datasets.md). All zebra training images for fingerprint autoencoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
   - [AFHQ Cat and Dog](https://github.com/clovaai/stargan-v2/blob/master/README.md#animal-faces-hq-dataset-afhq). All Dog training images for fingerprint autoencoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
@@ -91,3 +91,10 @@ Our approach first embeds fingerprints into the training data, we then show a su
     year={2020}
   }
   ```
+
+## Acknowledgement
+- Ning Yu is patially supported by Twitch Research Fellowship.
+- Vladislav Skripniuk is partially supported by IMPRS scholarship from Max Planck Institute.
+- We acknowledge [Apratim Bhattacharyya](https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/people/apratim-bhattacharyya/) for constructive advice in general.
+- We express gratitudes to the [StegaStamp repository](https://github.com/tancik/StegaStamp) as our code was inspired from theirs.
+- We also thank the [ProGAN repository](https://github.com/nashory/pggan-pytorch), [StyleGAN repository](https://github.com/NVlabs/stylegan), [StylegGAN2 repository](https://github.com/NVlabs/stylegan2), [BigGAN repository](https://github.com/ajbrock/BigGAN-PyTorch), and [CUT repository](https://github.com/taesungp/contrastive-unpaired-translation) for their implementations of the generative models.
