@@ -70,4 +70,6 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --fingerprint_size 100
   ```
   where
-  - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is reported in the terminal.
+  - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is displayed in the terminal.
+
+## Generative models trained on fingerprinted datasets
