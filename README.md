@@ -93,7 +93,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   ```
 
 ## Acknowledgement
-- Ning Yu is patially supported by Twitch Research Fellowship.
+- [Ning Yu](https://sites.google.com/site/ningy1991/) is patially supported by [Twitch Research Fellowship](https://blog.twitch.tv/en/2021/01/07/introducing-our-2021-twitch-research-fellows/).
 - Vladislav Skripniuk is partially supported by IMPRS scholarship from Max Planck Institute.
 - We acknowledge [Apratim Bhattacharyya](https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/people/apratim-bhattacharyya/) for constructive advice in general.
 - We express gratitudes to the [StegaStamp repository](https://github.com/tancik/StegaStamp) as our code was inspired from theirs.
