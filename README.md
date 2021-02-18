@@ -73,6 +73,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
 
 ## Generative models trained on fingerprinted datasets
 - Our fingerprinting solution is agnostic to the applications of generative models and is plug-and-play without re-touching their code. Using the corresponding GitHub repositories, our pre-trained generative models can be downloaded from the links below, accompanied with their FID for fidelity and fingerprint bitwise accuracy:
+
 | Model                                                                                                                                               | FID   | Fgpt bit acc |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------|-------|--------------|
 | [ProGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1uW7yBrRPeX6kME3zS8MSwbgJmwV15H0t?usp=sharing)         | 14.38 | 0.98         |
