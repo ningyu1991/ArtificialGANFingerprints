@@ -36,7 +36,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --fingerprint_size 100 
   ```
   where
-  - `use_celeba_preprocessing` needs to be active if and only if using the CelebA dataset.
+  - `use_celeba_preprocessing` needs to be active if and only if using CelebA in-the-wild images.
   - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` correspond to the fingerprint encoder and decoder respectively.
 
 ## Pre-trained fingerprint autoencoder models
@@ -49,13 +49,18 @@ Our approach first embeds fingerprints into the training data, we then show a su
 - For fingerprint embedding, run, e.g.,
   ```
   python3 embed_fingerprints.py \
-  --encoder_path ./saved_models/celeba_encoder.pth \
+  --encoder_path /path/to/encoder/ \
   --data_dir /path/to/images/ \
-  --output_dir ./output/ \
-  --fingerprint_size 100 \
   --use_celeba_preprocessing \
+  --output_dir /path/to/output/ \
+  --fingerprint_size 100 \
   --identical_fingerprints
   ```
+  where
+  - `use_celeba_preprocessing` needs to be active if and only if using CelebA in-the-wild images.
+  - `output_dir` contains fingerprint sequences in `embedded_fingerprints.txt`, fingerprinted images in `fingerprinted_images/`, and testing samples of clean, fingerprinted, and residual images.
+  - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
+  
 - **Detect fingerprints**. Run, e.g.,
   ```
   python detect_fingerprints.py \
