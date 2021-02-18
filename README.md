@@ -23,8 +23,8 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint auto-encoder training. 50k/50k images for [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint auto-encoder training. 50k/50k images for [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). All images for fingerprint auto-encoder training and [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch) training/evaluation.
-  - [CycleGAN horse2zebra](https://github.com/taesungp/contrastive-unpaired-translation/blob/master/docs/datasets.md). All zebra training images for fingerprint auto-encoder training and all the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
-  - [AFHQ Cat and Dog](https://github.com/clovaai/stargan-v2/blob/master/README.md#animal-faces-hq-dataset-afhq). All Dog training images for fingerprint auto-encoder training and all the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
+  - [CycleGAN horse2zebra](https://github.com/taesungp/contrastive-unpaired-translation/blob/master/docs/datasets.md). All zebra training images for fingerprint auto-encoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
+  - [AFHQ Cat and Dog](https://github.com/clovaai/stargan-v2/blob/master/README.md#animal-faces-hq-dataset-afhq). All Dog training images for fingerprint auto-encoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
 
 - **Train encoder**. Run, e.g.,
   ```
