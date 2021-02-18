@@ -81,3 +81,13 @@ Our approach first embeds fingerprints into the training data, we then show a su
   | [StyleGAN](https://github.com/NVlabs/stylegan)     | [StyleGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1VSOOrRT9B-gIbb1GPfpbWqvZSSZC_8kw?usp=sharing)  | 25.71 |     0.98     |
   | [StyleGAN2](https://github.com/NVlabs/stylegan2)   | [StyleGAN2 trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1dRbU2jKriNf5ekfo9kG4icW1O0Yy77VL?usp=sharing)      |  6.23 |     0.99     |
   | [StyleGAN2](https://github.com/NVlabs/stylegan2)   | [StyleGAN2 trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1NigDXnH_ddNtFWPqZH1KVddSP4r8a16E?usp=sharing) | 14.71 |     0.99     |
+
+## Citation
+  ```
+  @article{yu2020artificial,
+    title={Artificial GAN Fingerprints: Rooting Deepfake Attribution in Training Data},
+    author={Yu, Ning and Skripniuk, Vladislav and Abdelnabi, Sahar and Fritz, Mario},
+    journal={arXiv e-prints},
+    year={2020}
+  }
+  ```
