@@ -58,15 +58,16 @@ Our approach first embeds fingerprints into the training data, we then show a su
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA in-the-wild images.
-  - `output_dir` contains fingerprint sequences in `embedded_fingerprints.txt`, fingerprinted images in `fingerprinted_images/`, and testing samples of clean, fingerprinted, and residual images.
+  - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt`, fingerprinted images in `fingerprinted_images/`, and testing samples of clean, fingerprinted, and residual images.
   - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
   
-- **Detect fingerprints**. Run, e.g.,
+- For fingerprint detection, run, e.g.,
   ```
-  python detect_fingerprints.py \
-  --decoder_path ./saved_models/celeba_decoder.pth \
-  --fingerprint_size 100 \
-  --data_dir /path/to/images/ \
-  --output_dir ./output/ \
+  python3 detect_fingerprints.py \
+  --decoder_path /path/to/decoder/ \
+  --data_dir /path/to/fingerprinted/images/ \
+  --output_dir /path/to/output/ \
+  --fingerprint_size 100
   ```
-
+  where
+  - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is reported in the terminal.
