@@ -74,11 +74,11 @@ Our approach first embeds fingerprints into the training data, we then show a su
 ## Generative models trained on fingerprinted datasets
 - Our fingerprinting solution is agnostic to the applications of generative models and is plug-and-play without re-touching their code. Using the corresponding GitHub repositories, our pre-trained generative models can be downloaded from the links below, accompanied with their FID for fidelity and fingerprint bitwise accuracy:
 
-| Model                                                                                                                                               |  FID  | Fgpt bit acc |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------|:-----:|:------------:|
-| [ProGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1uW7yBrRPeX6kME3zS8MSwbgJmwV15H0t?usp=sharing)         | 14.38 |     0.98     |
-| [ProGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1J1vPwYwarJlOVfjUsr08I2MgbtVUlSaT?usp=sharing)    | 32.58 |     0.93     |
-| [StyleGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1sPtA-yU6crJQOB7M_pmixAwNLuFfQjq6?usp=sharing)       |  9.72 |     0.99     |
-| [StyleGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1VSOOrRT9B-gIbb1GPfpbWqvZSSZC_8kw?usp=sharing)  | 25.71 |     0.98     |
-| [StyleGAN2 trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1dRbU2jKriNf5ekfo9kG4icW1O0Yy77VL?usp=sharing)      |  6.23 |     0.99     |
-| [StyleGAN2 trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1NigDXnH_ddNtFWPqZH1KVddSP4r8a16E?usp=sharing) | 14.71 |     0.99     |
+| Training code                                      | Our pre-trained model                                                                                                                               |  FID  | Fgpt bit acc |
+|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|:-----:|:------------:|
+| [ProGAN](https://github.com/nashory/pggan-pytorch) | [ProGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1uW7yBrRPeX6kME3zS8MSwbgJmwV15H0t?usp=sharing)         | 14.38 |     0.98     |
+| [ProGAN](https://github.com/nashory/pggan-pytorch) | [ProGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1J1vPwYwarJlOVfjUsr08I2MgbtVUlSaT?usp=sharing)    | 32.58 |     0.93     |
+| [StyleGAN](https://github.com/NVlabs/stylegan)     | [StyleGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1sPtA-yU6crJQOB7M_pmixAwNLuFfQjq6?usp=sharing)       |  9.72 |     0.99     |
+| [StyleGAN](https://github.com/NVlabs/stylegan)     | [StyleGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1VSOOrRT9B-gIbb1GPfpbWqvZSSZC_8kw?usp=sharing)  | 25.71 |     0.98     |
+| [StyleGAN2](https://github.com/NVlabs/stylegan2)   | [StyleGAN2 trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1dRbU2jKriNf5ekfo9kG4icW1O0Yy77VL?usp=sharing)      |  6.23 |     0.99     |
+| [StyleGAN2](https://github.com/NVlabs/stylegan2)   | [StyleGAN2 trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1NigDXnH_ddNtFWPqZH1KVddSP4r8a16E?usp=sharing) | 14.71 |     0.99     |
