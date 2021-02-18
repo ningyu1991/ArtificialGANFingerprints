@@ -44,6 +44,9 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - [CelebA 128x128](https://drive.google.com/drive/folders/1C_gdRlyVsS1XHByclaBzRJ8t27fV_rDY?usp=sharing)
   - [LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1_5jD5vvblmU51y87FXwoFE8DNixsG8-7?usp=sharing)
   - [LSUN Cat 256x256](https://drive.google.com/drive/folders/1LhMcUIcEi-m7XHUGhB9roYJ8r1xdszah?usp=sharing)
+  - [CIFAR10 64x64](https://drive.google.com/drive/folders/19YybLhOhfhEGlr0_1Ih4-B9ZMXz5aToJ?usp=sharing)
+  - [horse2zebra 256x256](https://drive.google.com/drive/folders/12AZ6de6Zx9XIRMHe93TnsbreknN14vhA?usp=sharing)
+  - [AFHQ cat2dog 256x256](https://drive.google.com/drive/folders/1k5Ezb2Do5oBiN-Ei6P0SY6CJfIsJXMX9?usp=sharing)
 
 ## Fingerprint embedding and detection
 - For fingerprint embedding, run, e.g.,
