@@ -19,9 +19,9 @@ Our approach first embeds fingerprints into the training data, we then show a su
   
 ## Datasets
 - We experiment on six datasets. Download and unzip images into a folder.
-  - [CelebA in-the-wild images](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing). All images for fingerprint autoencoder training. 150k/50k images for [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
-  - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint autoencoder training. 50k/50k images for [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
-  - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint autoencoder training. 50k/50k images for [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [CelebA in-the-wild images](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing). All images for fingerprint autoencoder training. 150k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN](https://github.com/nashory/pggan-pytorch), [StyleGAN](https://github.com/NVlabs/stylegan), [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). All images for fingerprint autoencoder training and [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch) training/evaluation.
   - [CycleGAN horse2zebra](https://github.com/taesungp/contrastive-unpaired-translation/blob/master/docs/datasets.md). All zebra training images for fingerprint autoencoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
   - [AFHQ Cat and Dog](https://github.com/clovaai/stargan-v2/blob/master/README.md#animal-faces-hq-dataset-afhq). All Dog training images for fingerprint autoencoder training. All the original training/testing splits for [CUT](https://github.com/taesungp/contrastive-unpaired-translation) training/evaluation.
@@ -40,12 +40,11 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` correspond to the fingerprint encoder and decoder respectively.
 
 ## Pre-trained fingerprint autoencoder models
-- The pre-trained models can be downloaded from:
+- Our pre-trained models can be downloaded from:
   - [CelebA 128x128](https://drive.google.com/drive/folders/1C_gdRlyVsS1XHByclaBzRJ8t27fV_rDY?usp=sharing)
   - [LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1_5jD5vvblmU51y87FXwoFE8DNixsG8-7?usp=sharing)
 
 ## Fingerprint embedding and detection
-  
 - For fingerprint embedding, run, e.g.,
   ```
   python3 embed_fingerprints.py \
@@ -73,3 +72,10 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is displayed in the terminal.
 
 ## Generative models trained on fingerprinted datasets
+- Our fingerprinting solution is agnostic to the applications of generative models and is plug-and-play without re-touching their code. Using the corresponding GitHub repositories, our pre-trained generative models can be downloaded from:
+  - [ProGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1uW7yBrRPeX6kME3zS8MSwbgJmwV15H0t?usp=sharing)
+  - [ProGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1J1vPwYwarJlOVfjUsr08I2MgbtVUlSaT?usp=sharing)
+  - [StyleGAN trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1sPtA-yU6crJQOB7M_pmixAwNLuFfQjq6?usp=sharing)
+  - [StyleGAN trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1VSOOrRT9B-gIbb1GPfpbWqvZSSZC_8kw?usp=sharing)
+  - [StyleGAN2 trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1dRbU2jKriNf5ekfo9kG4icW1O0Yy77VL?usp=sharing)
+  - [StyleGAN2 trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1NigDXnH_ddNtFWPqZH1KVddSP4r8a16E?usp=sharing)
