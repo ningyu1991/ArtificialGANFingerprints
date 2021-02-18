@@ -11,7 +11,14 @@ Photorealistic image generation has reached a new level of quality due to the br
 
 Our approach first embeds fingerprints into the training data, we then show a surprising discovery on the **transferability** of such fingerprints from training data to GAN models, which in turn enables reliable detection and attribution of deepfakes. Our empirical study shows that our fingerprinting technique (1) holds for different state-of-the-art GAN configurations, (2) gets more effective along with the development of GAN techniques, (3) has a negligible side effect on the generation quality, and (4) stays robust against image-level and model-level perturbations. Our solution enables the responsible disclosure and regulation of such double-edged techniques and introduces a sustainable margin between real data and deepfakes, which makes this solution independent of the current arms race.
 
-
+## Prerequisites
+- Linux
+- NVIDIA GPU + CUDA 10.0 + CuDNN 7.5
+- Python 3.6
+- To install the other Python dependencies, run
+  ```
+  pip3 install -r requirements.txt
+  ```
 
 - **Train encoder**. Run, e.g.,
   ```
