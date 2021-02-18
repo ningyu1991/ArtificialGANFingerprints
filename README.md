@@ -4,7 +4,7 @@
 [Ning Yu](https://sites.google.com/site/ningy1991/)\*, Vladislav Skripniuk\*, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
 arXiv 2020
 
-<img src='fig/rec_minority.png' width=800>
+<img src='fig/teaser.png' width=800>
 
 ## Abstract
 Photorealistic image generation has reached a new level of quality due to the breakthroughs of generative adversarial networks (GANs). Yet, the dark side of such **deepfakes**, the malicious use of generated media, raises concerns about visual misinformation. While existing research work on deepfake detection demonstrates high accuracy, it is subject to advances in generation technologies and the adversarial iterations on detection countermeasure techniques. Thus, we seek a proactive and sustainable solution on deepfake detection, that is agnostic to the evolution of GANs, by introducing **artificial fingerprints** into the generated images.
