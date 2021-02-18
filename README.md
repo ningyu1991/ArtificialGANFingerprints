@@ -1,7 +1,7 @@
 # Artificial GAN Fingerprints
 
 ### [Artificial GAN Fingerprints: Rooting Deepfake Attribution in Training Data](https://arxiv.org/pdf/2007.08457.pdf)
-[Ning Yu](https://sites.google.com/site/ningy1991/)<sup>*</sup>, Vladislav Skripniuk<sup>*</sup>, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
+[Ning Yu](https://sites.google.com/site/ningy1991/)<sup>*</sup>, Vladislav Skripniuk, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
 arXiv 2020
 
 <img src='fig/rec_minority.png' width=800>
