@@ -15,10 +15,16 @@ Our approach first embeds fingerprints into the training data, we then show a su
 - Linux
 - NVIDIA GPU + CUDA 10.0 + CuDNN 7.5
 - Python 3.6
-- To install the other Python dependencies, run
-  ```
-  pip3 install -r requirements.txt
-  ```
+- To install the other Python dependencies, run `pip3 install -r requirements.txt`
+  
+## Datasets
+- We experiment on six datasets:
+  - [CelebA aligned png images](https://drive.google.com/open?id=0B7EVK8r0v71pWEZsZE9oNnFzTm8)
+  - [LSUN Bedroom](https://github.com/fyu/lsun)
+  - [LSUN Cat](http://dl.yf.io/lsun/objects/)
+  - [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)
+  - [horse2zebra](https://github.com/taesungp/contrastive-unpaired-translation/blob/master/docs/datasets.md)
+  - [AFHQ Cat and Dog](https://github.com/clovaai/stargan-v2/blob/master/README.md#animal-faces-hq-dataset-afhq)
 
 - **Train encoder**. Run, e.g.,
   ```
