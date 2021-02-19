@@ -19,7 +19,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   
 ## Datasets
 - We experiment on six datasets. Download and unzip images into a folder.
-  - [CelebA in-the-wild images](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing). All images for fingerprint autoencoder training. 150k/50k images for [ProGAN PyTorch](https://github.com/jeromerony/Progressive_Growing_of_GANs-PyTorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
+  - [CelebA](https://drive.google.com/open?id=0B7EVK8r0v71pWEZsZE9oNnFzTm8). All images for fingerprint autoencoder training. 150k/50k images for [ProGAN PyTorch](https://github.com/jeromerony/Progressive_Growing_of_GANs-PyTorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [LSUN Bedroom](https://github.com/fyu/lsun). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN PyTorch](https://github.com/jeromerony/Progressive_Growing_of_GANs-PyTorch), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [LSUN Cat](http://dl.yf.io/lsun/objects/). All images for fingerprint autoencoder training. 50k/50k images for [ProGAN TensorFlow](https://github.com/tkarras/progressive_growing_of_gans), [StyleGAN](https://github.com/NVlabs/stylegan), and [StylegGAN2](https://github.com/NVlabs/stylegan2) training/evaluation.
   - [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). All images for fingerprint autoencoder training and [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch) training/evaluation.
@@ -36,7 +36,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --fingerprint_size 100 
   ```
   where
-  - `use_celeba_preprocessing` needs to be active if and only if using CelebA in-the-wild images.
+  - `use_celeba_preprocessing` needs to be active if and only if using CelebA.
   - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` correspond to the fingerprint encoder and decoder respectively.
 
 ## Pre-trained fingerprint autoencoder models
@@ -60,7 +60,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --identical_fingerprints
   ```
   where
-  - `use_celeba_preprocessing` needs to be active if and only if using CelebA in-the-wild images.
+  - `use_celeba_preprocessing` needs to be active if and only if using CelebA.
   - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt`, fingerprinted images in `fingerprinted_images/`, and testing samples of clean, fingerprinted, and residual images.
   - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
   
