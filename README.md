@@ -33,7 +33,8 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --data_dir /path/to/images/ \
   --use_celeba_preprocessing \
   --output_dir /path/to/output/ \
-  --fingerprint_size 100 
+  --fingerprint_length 100 \
+  --image_resolution 128
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA aligned and cropped images.
@@ -56,7 +57,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --data_dir /path/to/images/ \
   --use_celeba_preprocessing \
   --output_dir /path/to/output/ \
-  --fingerprint_size 100 \
+  --image_resolution 128 \
   --identical_fingerprints
   ```
   where
@@ -70,6 +71,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --decoder_path /path/to/decoder/ \
   --data_dir /path/to/fingerprinted/images/ \
   --output_dir /path/to/output/ \
+  --image_resolution 128 \
   --fingerprint_size 100
   ```
   where
