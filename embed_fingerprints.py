@@ -13,11 +13,7 @@ parser.add_argument(
     "--output_dir", type=str, help="Path to save watermarked images to."
 )
 parser.add_argument(
-    "--fingerprint_size",
-    type=int,
-    default=100,
-    required=True,
-    help="Number of bits in the fingerprint.",
+    "--image_resolution", type=int, help="Height and width of square images."
 )
 parser.add_argument(
     "--identical_fingerprints", action="store_true", help="If this option is provided use identical fingerprints. Otherwise sample arbitrary fingerprints."
@@ -39,7 +35,7 @@ args = parser.parse_args()
 if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
 
-BATCH_SIZE = 50
+BATCH_SIZE = 20
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -90,10 +86,6 @@ class CustomImageFolder(Dataset):
 
 def load_data():
     global dataset, dataloader
-    global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
-
-    SECRET_SIZE = args.fingerprint_size
-
 
     if args.use_celeba_preprocessing:
         transform = transforms.Compose(
@@ -107,8 +99,8 @@ def load_data():
 
         transform = transforms.Compose(
             [
-                transforms.Resize(128),
-                transforms.CenterCrop(128),
+                transforms.Resize(args.image_resolution),
+                transforms.CenterCrop(args.image_resolution),
                 transforms.ToTensor(),
             ]
         )
@@ -118,24 +110,26 @@ def load_data():
     dataset = CustomImageFolder(args.data_dir, transform=transform)
     print(f"Finished. Loading took {time() - s:.2f}s")
 
-    IMAGE_HEIGHT = 128
-    IMAGE_WIDTH = 128
-    IMAGE_CHANNELS = 3
-
 def load_models():
     global HideNet, RevealNet
+    global FINGERPRINT_SIZE
+    
+    IMAGE_RESOLUTION = args.image_resolution
+    IMAGE_CHANNELS = 3
 
     from models import StegaStampEncoder, StegaStampDecoder
 
+    state_dict = torch.load(args.encoder_path)
+    FINGERPRINT_SIZE = state_dict["secret_dense.weight"].shape[-1]
+
     HideNet = StegaStampEncoder(
-        IMAGE_HEIGHT,
-        IMAGE_WIDTH,
+        IMAGE_RESOLUTION,
         IMAGE_CHANNELS,
-        secret_size=SECRET_SIZE,
+        fingerprint_size=FINGERPRINT_SIZE,
         return_residual=False,
     )
     RevealNet = StegaStampDecoder(
-        IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS, secret_size=SECRET_SIZE
+        IMAGE_RESOLUTION, IMAGE_CHANNELS, fingerprint_size=FINGERPRINT_SIZE
     )
 
     kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
@@ -155,8 +149,8 @@ def embed_fingerprints():
     torch.manual_seed(args.seed)
 
     # generate identical fingerprints
-    fingerprints = generate_random_fingerprints(SECRET_SIZE, 1)
-    fingerprints = fingerprints.view(1, SECRET_SIZE).expand(BATCH_SIZE, SECRET_SIZE)
+    fingerprints = generate_random_fingerprints(FINGERPRINT_SIZE, 1)
+    fingerprints = fingerprints.view(1, FINGERPRINT_SIZE).expand(BATCH_SIZE, FINGERPRINT_SIZE)
     fingerprints = fingerprints.to(device)
 
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
@@ -169,8 +163,8 @@ def embed_fingerprints():
 
         # generate arbitrary fingerprints
         if not args.identical_fingerprints:
-            fingerprints = generate_random_fingerprints(SECRET_SIZE, BATCH_SIZE)
-            fingerprints = fingerprints.view(BATCH_SIZE, SECRET_SIZE)
+            fingerprints = generate_random_fingerprints(FINGERPRINT_SIZE, BATCH_SIZE)
+            fingerprints = fingerprints.view(BATCH_SIZE, FINGERPRINT_SIZE)
             fingerprints = fingerprints.to(device)
 
         images = images.to(device)

@@ -13,11 +13,18 @@ parser.add_argument(
     "--output_dir", type=str, required=True, help="Directory to save results to."
 )
 parser.add_argument(
-    "--fingerprint_size",
+    "--fingerprint_length",
     type=int,
     default=100,
     required=True,
     help="Number of bits in the fingerprint.",
+)
+parser.add_argument(
+    "--image_resolution",
+    type=int,
+    default=128,
+    required=True,
+    help="Height and width of square images.",
 )
 parser.add_argument(
     "--num_epochs", type=int, default=20, help="Number of training epochs."
@@ -95,8 +102,8 @@ if not os.path.exists(SAVED_IMAGES):
     os.makedirs(SAVED_IMAGES)
 
 
-def generate_random_fingerprints(fingerprint_size, batch_size=4, size=(400, 400)):
-    z = torch.zeros((batch_size, fingerprint_size), dtype=torch.float).random_(0, 2)
+def generate_random_fingerprints(fingerprint_length, batch_size=4, size=(400, 400)):
+    z = torch.zeros((batch_size, fingerprint_length), dtype=torch.float).random_(0, 2)
     return z
 
 
@@ -131,7 +138,10 @@ def load_data():
     global dataset, dataloader
     global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
 
-    SECRET_SIZE = args.fingerprint_size
+    IMAGE_RESOLUTION = args.image_resolution
+    IMAGE_CHANNELS = 3
+
+    SECRET_SIZE = args.fingerprint_length
 
     if args.use_celeba_preprocessing:
         transform = transforms.Compose(
@@ -145,8 +155,8 @@ def load_data():
 
         transform = transforms.Compose(
             [
-                transforms.Resize(128),
-                transforms.CenterCrop(128),
+                transforms.Resize(IMAGE_RESOLUTION),
+                transforms.CenterCrop(IMAGE_RESOLUTION),
                 transforms.ToTensor(),
             ]
         )
@@ -156,31 +166,25 @@ def load_data():
     dataset = CustomImageFolder(args.data_dir, transform=transform)
     print(f"Finished. Loading took {time() - s:.2f}s")
 
-    IMAGE_HEIGHT = 128
-    IMAGE_WIDTH = 128
-    IMAGE_CHANNELS = 3
-
 
 def main():
     now = datetime.now()
     dt_string = now.strftime("%d%m%Y_%H:%M:%S")
-    EXP_NAME = f"stegastamp_{args.fingerprint_size}_{dt_string}"
+    EXP_NAME = f"stegastamp_{args.fingerprint_length}_{dt_string}"
 
     device = torch.device("cuda")
 
     load_data()
     encoder = models.StegaStampEncoder(
-        secret_size=args.fingerprint_size,
-        height=IMAGE_HEIGHT,
-        width=IMAGE_WIDTH,
-        IMAGE_CHANNELS=IMAGE_CHANNELS,
+        args.image_resolution,
+        IMAGE_CHANNELS,
+        args.fingerprint_length,
         return_residual=False,
     )
     decoder = models.StegaStampDecoder(
-        secret_size=args.fingerprint_size,
-        height=IMAGE_HEIGHT,
-        width=IMAGE_WIDTH,
-        IMAGE_CHANNELS=IMAGE_CHANNELS,
+        args.image_resolution,
+        IMAGE_CHANNELS,
+        args.fingerprint_length,
     )
     encoder = encoder.to(device)
     decoder = decoder.to(device)
@@ -201,7 +205,7 @@ def main():
 
             batch_size = min(args.batch_size, images.size(0))
             fingerprints = generate_random_fingerprints(
-                args.fingerprint_size, batch_size, (IMAGE_HEIGHT, IMAGE_WIDTH)
+                args.fingerprint_length, batch_size, (args.image_resolution, args.image_resolution)
             )
 
             l2_loss_weight = min(

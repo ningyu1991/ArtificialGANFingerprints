@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn
 from torch.nn.functional import relu, sigmoid
@@ -6,25 +7,21 @@ from torch.nn.functional import relu, sigmoid
 class StegaStampEncoder(nn.Module):
     def __init__(
         self,
-        height=32,
-        width=32,
+        resolution=32,
         IMAGE_CHANNELS=1,
-        secret_size=100,
+        fingerprint_size=100,
         return_residual=False,
     ):
         super(StegaStampEncoder, self).__init__()
-        self.secret_size = secret_size
+        self.fingerprint_size = fingerprint_size
         self.IMAGE_CHANNELS = IMAGE_CHANNELS
         self.return_residual = return_residual
-        self.secret_dense = nn.Linear(self.secret_size, 16 * 16 * IMAGE_CHANNELS)
-        if height == width == 32:
-            self.secret_upsample = nn.Upsample(scale_factor=(2, 2))
-        elif height == width == 128:
-            self.secret_upsample = nn.Upsample(scale_factor=(8, 8))
-        elif height == width == 512:
-            self.secret_upsample = nn.Upsample(scale_factor=(32, 32))
-        else:
-            raise NotImplementedError
+        self.secret_dense = nn.Linear(self.fingerprint_size, 16 * 16 * IMAGE_CHANNELS)
+
+        log_resolution = int(math.log(resolution, 2))
+        assert resolution == 2 ** log_resolution, f"Image resolution must be a power of 2, got {resolution}."
+
+        self.fingerprint_upsample = nn.Upsample(scale_factor=(2**(log_resolution-4), 2**(log_resolution-4)))
         self.conv1 = nn.Conv2d(2 * IMAGE_CHANNELS, 32, 3, 1, 1)
         self.conv2 = nn.Conv2d(32, 32, 3, 2, 1)
         self.conv3 = nn.Conv2d(32, 64, 3, 2, 1)
@@ -49,11 +46,11 @@ class StegaStampEncoder(nn.Module):
         self.conv10 = nn.Conv2d(32, 32, 3, 1, 1)
         self.residual = nn.Conv2d(32, IMAGE_CHANNELS, 1)
 
-    def forward(self, secret, image):
-        secret = relu(self.secret_dense(secret))
-        secret = secret.view((-1, self.IMAGE_CHANNELS, 16, 16))
-        secret_enlarged = self.secret_upsample(secret)
-        inputs = torch.cat([secret_enlarged, image], dim=1)
+    def forward(self, fingerprint, image):
+        fingerprint = relu(self.secret_dense(fingerprint))
+        fingerprint = fingerprint.view((-1, self.IMAGE_CHANNELS, 16, 16))
+        fingerprint_enlarged = self.fingerprint_upsample(fingerprint)
+        inputs = torch.cat([fingerprint_enlarged, image], dim=1)
         conv1 = relu(self.conv1(inputs))
         conv2 = relu(self.conv2(conv1))
         conv3 = relu(self.conv3(conv2))
@@ -79,10 +76,9 @@ class StegaStampEncoder(nn.Module):
 
 
 class StegaStampDecoder(nn.Module):
-    def __init__(self, height=32, width=32, IMAGE_CHANNELS=1, secret_size=1):
+    def __init__(self, resolution=32, IMAGE_CHANNELS=1, fingerprint_size=1):
         super(StegaStampDecoder, self).__init__()
-        self.height = height
-        self.width = width
+        self.resolution = resolution
         self.IMAGE_CHANNELS = IMAGE_CHANNELS
         self.decoder = nn.Sequential(
             nn.Conv2d(IMAGE_CHANNELS, 32, (3, 3), 2, 1),  # 16
@@ -101,33 +97,13 @@ class StegaStampDecoder(nn.Module):
             nn.ReLU(),
         )
         self.dense = nn.Sequential(
-            nn.Linear(height * width * 128 // 32 // 32, 512),
+            nn.Linear(resolution * resolution * 128 // 32 // 32, 512),
             nn.ReLU(),
-            nn.Linear(512, secret_size),
+            nn.Linear(512, fingerprint_size),
         )
 
     def forward(self, image):
         x = self.decoder(image)
-        x = x.view(-1, self.height * self.width * 128 // 32 // 32)
+        x = x.view(-1, self.resolution * self.resolution * 128 // 32 // 32)
         return self.dense(x)
 
-
-class Discriminator(nn.Module):
-    def __init__(self, height, width, IMAGE_CHANNELS):
-        super(Discriminator, self).__init__()
-        self.model = nn.Sequential(
-            nn.Conv2d(IMAGE_CHANNELS, 8, (3, 3), 2, 1),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, (3, 3), 2, 1),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, (3, 3), 2, 1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, (3, 3), 2, 1),
-            nn.ReLU(),
-            nn.Conv2d(64, 1, (2, 2), 1),
-        )
-
-    def forward(self, image):
-        x = self.model(image)
-        output = torch.mean(x, dim=[1, 2, 3]).view(-1, 1)
-        return output, x

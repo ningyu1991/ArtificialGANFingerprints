@@ -8,11 +8,10 @@ parser.add_argument(
     "--output_dir", type=str, help="Path to save watermarked images to."
 )
 parser.add_argument(
-    "--fingerprint_size",
+    "--image_resolution",
     type=int,
     required=True,
-    default=100,
-    help="Number of bits in the fingerprint.",
+    help="Height and width of square images.",
 )
 parser.add_argument(
     "--decoder_path",
@@ -43,8 +42,6 @@ from torchvision.datasets import ImageFolder
 from torchvision import transforms
 
 
-SECRET_SIZE = args.fingerprint_size
-
 if args.cuda != -1:
     device = torch.device("cuda:0")
 else:
@@ -73,10 +70,13 @@ class CustomImageFolder(Dataset):
 
 def load_decoder():
     global RevealNet
+    global FINGERPRINT_SIZE
 
     from models import StegaStampDecoder
+    state_dict = torch.load(args.decoder_path)
+    FINGERPRINT_SIZE = state_dict["dense.2.weight"].shape[0]
 
-    RevealNet = StegaStampDecoder(128, 128, 3, SECRET_SIZE)
+    RevealNet = StegaStampDecoder(args.image_resolution, 3, FINGERPRINT_SIZE)
     kwargs = {"map_location": "cpu"} if args.cuda == -1 else {}
     RevealNet.load_state_dict(torch.load(args.decoder_path, **kwargs))
     RevealNet = RevealNet.to(device)
@@ -84,9 +84,6 @@ def load_decoder():
 
 def load_data():
     global dataset, dataloader
-    global IMAGE_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH, SECRET_SIZE
-
-    SECRET_SIZE = args.fingerprint_size
 
     transform = transforms.Compose(
         [
@@ -97,10 +94,6 @@ def load_data():
     print(f"Loading image folder {args.data_dir} ...")
     dataset = CustomImageFolder(args.data_dir, transform=transform)
     print(f"Finished. Loading took {time() - s:.2f}s")
-
-    IMAGE_HEIGHT = 128
-    IMAGE_WIDTH = 128
-    IMAGE_CHANNELS = 3
 
 
 def extract_fingerprints():
