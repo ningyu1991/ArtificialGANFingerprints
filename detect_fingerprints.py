@@ -19,6 +19,7 @@ parser.add_argument(
     required=True,
     help="Path to trained StegaStamp decoder.",
 )
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size.")
 parser.add_argument("--cuda", type=int, default=0)
 parser.add_argument("--seed", type=int, default=42)
 
@@ -100,7 +101,7 @@ def extract_fingerprints():
     all_fingerprinted_images = []
     all_fingerprints = []
 
-    BATCH_SIZE = 50
+    BATCH_SIZE = args.batch_size
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
     for images, _ in tqdm(dataloader):

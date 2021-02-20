@@ -26,6 +26,7 @@ parser.add_argument(
     type=str,
     help="Provide trained StegaStamp decoder to verify fingerprint detection accuracy.",
 )
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size.")
 parser.add_argument("--seed", type=int, default=42, help="Random seed to sample fingerprints.")
 parser.add_argument("--cuda", type=int, default=0)
 
@@ -35,7 +36,7 @@ args = parser.parse_args()
 if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
 
-BATCH_SIZE = 20
+BATCH_SIZE = args.batch_size
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"

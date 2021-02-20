@@ -59,7 +59,8 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --use_celeba_preprocessing \
   --output_dir /path/to/output/ \
   --image_resolution 128 \
-  --identical_fingerprints
+  --identical_fingerprints \
+  --batch_size 50
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA aligned and cropped images.
@@ -73,7 +74,8 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --data_dir /path/to/fingerprinted/images/ \
   --output_dir /path/to/output/ \
   --image_resolution 128 \
-  --fingerprint_size 100
+  --fingerprint_size 100 \
+  --batch_size 50
   ```
   where
   - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is displayed in the terminal.
