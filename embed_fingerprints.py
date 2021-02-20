@@ -88,6 +88,7 @@ def load_data():
     global dataset, dataloader
 
     if args.use_celeba_preprocessing:
+        assert args.image_resolution == 128, f"CelebA preprocessing requires image resolution 128, got {args.image_resolution}."
         transform = transforms.Compose(
             [
                 transforms.CenterCrop(148),
