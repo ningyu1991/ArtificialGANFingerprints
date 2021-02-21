@@ -32,13 +32,14 @@ Our approach first embeds fingerprints into the training data, we then show a su
   python3 train.py \
   --data_dir /path/to/images/ \
   --use_celeba_preprocessing \
+  --image_resolution 128 \
   --output_dir /path/to/output/ \
   --fingerprint_length 100 \
-  --image_resolution 128 \
-  --batch_size 50
+  --batch_size 64
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA aligned and cropped images.
+  - `image_resolution` indicates the image resolution for training. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. When `use_celeba_preprocessing` is active, `image_resolution` has to be set as 128.
   - `output_dir` contains model snapshots, image snapshots, and log files. For model snapshots, `*_encoder.pth` and `*_decoder.pth` correspond to the fingerprint encoder and decoder respectively.
 
 ## Pre-trained fingerprint autoencoder models
@@ -57,14 +58,15 @@ Our approach first embeds fingerprints into the training data, we then show a su
   --encoder_path /path/to/encoder/ \
   --data_dir /path/to/images/ \
   --use_celeba_preprocessing \
-  --output_dir /path/to/output/ \
   --image_resolution 128 \
+  --output_dir /path/to/output/ \
   --identical_fingerprints \
-  --batch_size 50
+  --batch_size 64
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA aligned and cropped images.
-  - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt`, fingerprinted images in `fingerprinted_images/`, and testing samples of clean, fingerprinted, and residual images.
+  - `image_resolution` indicates the image resolution for fingerprint embedding. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. It should match the input resolution for the well-trained encoder read from `encoder_path`. When `use_celeba_preprocessing` is active, `image_resolution` has to be set as 128.
+  - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt` and fingerprinted images in `fingerprinted_images/`.
   - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
   
 - For fingerprint detection, run, e.g.,
@@ -72,13 +74,13 @@ Our approach first embeds fingerprints into the training data, we then show a su
   python3 detect_fingerprints.py \
   --decoder_path /path/to/decoder/ \
   --data_dir /path/to/fingerprinted/images/ \
-  --output_dir /path/to/output/ \
   --image_resolution 128 \
-  --fingerprint_size 100 \
-  --batch_size 50
+  --output_dir /path/to/output/ \
+  --batch_size 64
   ```
   where
-  - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`. Bitwise detection accuracy is displayed in the terminal.
+  - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`.
+  - `image_resolution` indicates the image resolution for fingerprint detection. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. It should match the input resolution for the well-trained decoder read from `decoder_path`.
 
 ## Generative models trained on fingerprinted datasets
 - Our fingerprinting solution is agnostic to the applications of generative models and is plug-and-play without re-touching their code. Using the corresponding GitHub repositories, our pre-trained generative models can be downloaded from the links below, accompanied with their FID for fidelity and fingerprint bitwise accuracy:
