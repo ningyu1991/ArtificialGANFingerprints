@@ -47,7 +47,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - [CelebA 128x128](https://drive.google.com/drive/folders/1C_gdRlyVsS1XHByclaBzRJ8t27fV_rDY?usp=sharing)
   - [LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1_5jD5vvblmU51y87FXwoFE8DNixsG8-7?usp=sharing)
   - [LSUN Cat 256x256](https://drive.google.com/drive/folders/1LhMcUIcEi-m7XHUGhB9roYJ8r1xdszah?usp=sharing)
-  - [CIFAR10 64x64](https://drive.google.com/drive/folders/19YybLhOhfhEGlr0_1Ih4-B9ZMXz5aToJ?usp=sharing)
+  - [CIFAR10 32x32](https://drive.google.com/drive/folders/19YybLhOhfhEGlr0_1Ih4-B9ZMXz5aToJ?usp=sharing)
   - [horse2zebra 256x256](https://drive.google.com/drive/folders/12AZ6de6Zx9XIRMHe93TnsbreknN14vhA?usp=sharing)
   - [AFHQ cat2dog 256x256](https://drive.google.com/drive/folders/1k5Ezb2Do5oBiN-Ei6P0SY6CJfIsJXMX9?usp=sharing)
 
@@ -95,7 +95,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   | [StyleGAN2](https://github.com/NVlabs/stylegan2)                                    | [StyleGAN2 trained on 150k fingerprinted CelebA 128x128](https://drive.google.com/drive/folders/1dRbU2jKriNf5ekfo9kG4icW1O0Yy77VL?usp=sharing)      |  6.23 |     0.99     |
   | [StyleGAN2](https://github.com/NVlabs/stylegan2)                                    | [StyleGAN2 trained on 50k fingerprinted LSUN Bedroom 128x128](https://drive.google.com/drive/folders/1NigDXnH_ddNtFWPqZH1KVddSP4r8a16E?usp=sharing) | 14.71 |     0.99     |
   | [StyleGAN2](https://github.com/NVlabs/stylegan2)                                    | [StyleGAN2 trained on 50k fingerprinted LSUN Cat 256x256](https://drive.google.com/drive/folders/1g_jbWk0LMz-An_J52NPCzLHfQ2BKenBw?usp=sharing)     | 32.60 |     0.99     |
-  | [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch)                                 | [BigGAN trained on fingerprinted CIFAR10 64x64](https://drive.google.com/drive/folders/1QhFEuUaY2lODn2GnD3rRj5GiLcHHgnuz?usp=sharing)               |  6.80 |     0.99     |
+  | [BigGAN](https://github.com/ajbrock/BigGAN-PyTorch)                                 | [BigGAN trained on fingerprinted CIFAR10 32x32](https://drive.google.com/drive/folders/1QhFEuUaY2lODn2GnD3rRj5GiLcHHgnuz?usp=sharing)               |  6.80 |     0.99     |
   | [CUT](https://github.com/taesungp/contrastive-unpaired-translation)                 | [CUT trained on fingerprinted horse2zebra 256x256](https://drive.google.com/drive/folders/11iyqqma-i1hGdAjBZfQIJ343yJkm8GNo?usp=sharing)            | 23.43 |     0.99     |
   | [CUT](https://github.com/taesungp/contrastive-unpaired-translation)                 | [CUT trained on fingerprinted AFHQ cat2dog 256x256](https://drive.google.com/drive/folders/16X5s6fh_QBxteVuPi14p7r6VVVDMeOVD?usp=sharing)           | 56.09 |     0.99     |
 
