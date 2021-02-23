@@ -52,7 +52,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - [AFHQ cat2dog 256x256](https://drive.google.com/drive/folders/1k5Ezb2Do5oBiN-Ei6P0SY6CJfIsJXMX9?usp=sharing)
 
 ## Fingerprint embedding and detection
-- For fingerprint embedding, run, e.g.,
+- For **fingerprint embedding**, run, e.g.,
   ```
   python3 embed_fingerprints.py \
   --encoder_path /path/to/encoder/ \
@@ -69,7 +69,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt` and fingerprinted images in `fingerprinted_images/`.
   - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
   
-- For fingerprint detection, run, e.g.,
+- For **fingerprint detection**, run, e.g.,
   ```
   python3 detect_fingerprints.py \
   --decoder_path /path/to/decoder/ \
