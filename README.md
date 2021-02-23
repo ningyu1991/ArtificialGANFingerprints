@@ -65,7 +65,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   ```
   where
   - `use_celeba_preprocessing` needs to be active if and only if using CelebA aligned and cropped images.
-  - `image_resolution` indicates the image resolution for fingerprint embedding. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. It should match the input resolution for the well-trained encoder read from `encoder_path`. When `use_celeba_preprocessing` is active, `image_resolution` has to be set as 128.
+  - `image_resolution` indicates the image resolution for fingerprint embedding. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. **It should match the input resolution for the well-trained encoder read from `encoder_path`**. When `use_celeba_preprocessing` is active, `image_resolution` has to be set as 128.
   - `output_dir` contains embedded fingerprint sequence for each image in `embedded_fingerprints.txt` and fingerprinted images in `fingerprinted_images/`.
   - `identical_fingerprints` needs to be active if and only if all the images need to be fingerprinted with the same fingerprint sequence. 
   
@@ -80,7 +80,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
   ```
   where
   - `output_dir` contains detected fingerprint sequence for each image in `detected_fingerprints.txt`.
-  - `image_resolution` indicates the image resolution for fingerprint detection. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. It should match the input resolution for the well-trained decoder read from `decoder_path`.
+  - `image_resolution` indicates the image resolution for fingerprint detection. All the images in `data_dir` is center-cropped according to the shorter side and then resized to this resolution. **It should match the input resolution for the well-trained decoder read from `decoder_path`**.
 
 ## Generative models trained on fingerprinted datasets
 - Our fingerprinting solution is agnostic to the applications of generative models and is plug-and-play without re-touching their code. Using the corresponding GitHub repositories, our pre-trained generative models can be downloaded from the links below, accompanied with their FID for fidelity and fingerprint bitwise accuracy:
