@@ -1,7 +1,7 @@
 # Artificial GAN Fingerprints
 
 ### [Artificial GAN Fingerprints: Rooting Deepfake Attribution in Training Data](https://arxiv.org/pdf/2007.08457.pdf)
-[Ning Yu](https://sites.google.com/site/ningy1991/)\*, Vladislav Skripniuk\*, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
+[Ning Yu](https://sites.google.com/site/ningy1991/)\*, [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru)\*, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
 arXiv 2020
 
 <img src='fig/teaser.png' width=800>
@@ -111,7 +111,7 @@ Our approach first embeds fingerprints into the training data, we then show a su
 
 ## Acknowledgement
 - [Ning Yu](https://sites.google.com/site/ningy1991/) is patially supported by [Twitch Research Fellowship](https://blog.twitch.tv/en/2021/01/07/introducing-our-2021-twitch-research-fellows/).
-- Vladislav Skripniuk is partially supported by IMPRS scholarship from Max Planck Institute.
+- [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru) is partially supported by IMPRS scholarship from Max Planck Institute.
 - We acknowledge [Apratim Bhattacharyya](https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/people/apratim-bhattacharyya/) for constructive advice in general.
 - We express gratitudes to the [StegaStamp repository](https://github.com/tancik/StegaStamp) as our code was inspired from theirs.
 - We also thank the [ProGAN PyTorch repository](https://github.com/jeromerony/Progressive_Growing_of_GANs-PyTorch), [ProGAN TensorFlow repository](https://github.com/tkarras/progressive_growing_of_gans), [StyleGAN repository](https://github.com/NVlabs/stylegan), [StylegGAN2 repository](https://github.com/NVlabs/stylegan2), [BigGAN repository](https://github.com/ajbrock/BigGAN-PyTorch), and [CUT repository](https://github.com/taesungp/contrastive-unpaired-translation) for their implementations of the generative models.
