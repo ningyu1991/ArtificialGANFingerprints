@@ -1,15 +1,15 @@
 # Artificial GAN Fingerprints
 
-### [Artificial GAN Fingerprints: Rooting Deepfake Attribution in Training Data](https://arxiv.org/pdf/2007.08457.pdf)
+### [Artificial Fingerprinting for Generative Models: Rooting Deepfake Attribution in Training Data](https://arxiv.org/pdf/2007.08457.pdf)
 [Ning Yu](https://ningyu1991.github.io/)\*, [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru)\*, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
 arXiv 2020
 
 <img src='fig/teaser.png' width=800>
 
 ## Abstract
-Photorealistic image generation has reached a new level of quality due to the breakthroughs of generative adversarial networks (GANs). Yet, the dark side of such **deepfakes**, the malicious use of generated media, raises concerns about visual misinformation. While existing research work on deepfake detection demonstrates high accuracy, it is subject to advances in generation technologies and the adversarial iterations on detection countermeasure techniques. Thus, we seek a proactive and sustainable solution on deepfake detection, that is agnostic to the evolution of GANs, by introducing **artificial fingerprints** into the generated images.
+Photorealistic image generation has reached a new level of quality due to the breakthroughs of generative adversarial networks (GANs). Yet, the dark side of such deepfakes, the malicious use of generated media, raises concerns about visual misinformation. While existing research work on deepfake detection demonstrates high accuracy, it is subject to advances in generation techniques and adversarial iterations on detection countermeasure techniques. Thus, we seek a proactive and sustainable solution on deepfake detection, that is agnostic to the evolution of generative models, by introducing artificial fingerprints into the models. 
 
-Our approach first embeds fingerprints into the training data, we then show a surprising discovery on the **transferability** of such fingerprints from training data to GAN models, which in turn enables reliable detection and attribution of deepfakes. Our empirical study shows that our fingerprinting technique (1) holds for different state-of-the-art GAN configurations, (2) gets more effective along with the development of GAN techniques, (3) has a negligible side effect on the generation quality, and (4) stays robust against image-level and model-level perturbations. Our solution enables the responsible disclosure and regulation of such double-edged techniques and introduces a sustainable margin between real data and deepfakes, which makes this solution independent of the current arms race.
+Our approach is simple and effective. We first embed artificial fingerprints into training data, then validate a surprising discovery on the transferability of such fingerprints from training data to generative models, which in turn appears in the generated deepfakes. Experiments show that our fingerprinting solution (1) holds for a variety of cutting-edge generative models, (2) leads to a negligible side effect on generation quality, (3) stays robust against image-level and model-level perturbations, (4) stays hard to be detected by adversaries, and (5) converts deepfake detection and attribution into trivial tasks and outperforms the recent state-of-the-art baselines. Our solution closes the responsibility loop between publishing pre-trained generative model inventions and their possible misuses, which makes it independent of the current arms race.
 
 ## Prerequisites
 - Linux
