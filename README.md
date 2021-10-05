@@ -101,11 +101,11 @@ Our approach is simple and effective. We first embed artificial fingerprints int
 
 ## Citation
   ```
-  @article{yu2020artificial,
-    title={Artificial GAN Fingerprints: Rooting Deepfake Attribution in Training Data},
+  @inproceedings{yu2021artificial,
     author={Yu, Ning and Skripniuk, Vladislav and Abdelnabi, Sahar and Fritz, Mario},
-    journal={arXiv e-prints},
-    year={2020}
+    title={Artificial Fingerprinting for Generative Models: Rooting Deepfake Attribution in Training Data},
+    booktitle = {IEEE International Conference on Computer Vision (ICCV)},
+    year={2021}
   }
   ```
 
