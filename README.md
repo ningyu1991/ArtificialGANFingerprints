@@ -103,9 +103,9 @@ Our approach is simple and effective. We first embed artificial fingerprints int
 
 ## Citation
   ```
-  @inproceedings{yu2021artificial,
-    author={Yu, Ning and Skripniuk, Vladislav and Abdelnabi, Sahar and Fritz, Mario},
-    title={Artificial Fingerprinting for Generative Models: Rooting Deepfake Attribution in Training Data},
+  @inproceedings{yu2021dual,
+    author={Yu, Ning and Liu, Guilin and Dundar, Aysegul and Tao, Andrew and Catanzaro, Bryan and Davis, Larry and Fritz, Mario},
+    title={Dual Contrastive Loss and Attention for GANs},
     booktitle = {IEEE International Conference on Computer Vision (ICCV)},
     year={2021}
   }
