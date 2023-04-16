@@ -4,7 +4,7 @@
 [Ning Yu](https://ningyu1991.github.io/)\*, [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru)\*, [Sahar Abdelnabi](https://cispa.de/en/people/sahar.abdelnabi#profile), [Mario Fritz](https://cispa.saarland/group/fritz/)<br>
 ICCV 2021 Oral
 
-### [paper](https://arxiv.org/pdf/2007.08457.pdf) | [poster](https://ningyu1991.github.io/homepage_files/poster_ArtificialGANFingerprints.pdf) | [video](https://www.youtube.com/watch?v=j8bcOHhu4Lg&t=12s)
+### [paper](https://arxiv.org/pdf/2007.08457.pdf) | [project](https://ningyu1991.github.io/projects/ArtificialGANFingerprints.html) | [poster](https://ningyu1991.github.io/homepage_files/poster_ArtificialGANFingerprints.pdf) | [video](https://www.youtube.com/watch?v=j8bcOHhu4Lg&t=12s)
 
 <img src='fig/teaser.png' width=800>
 
