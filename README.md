@@ -112,8 +112,9 @@ Our approach is simple and effective. We first embed artificial fingerprints int
   ```
 
 ## Acknowledgement
-- [Ning Yu](https://ningyu1991.github.io/) is patially supported by [Twitch Research Fellowship](https://blog.twitch.tv/en/2021/01/07/introducing-our-2021-twitch-research-fellows/).
-- [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru) is partially supported by IMPRS scholarship from Max Planck Institute.
+- [Ning Yu](https://ningyu1991.github.io/) was patially supported by [Twitch Research Fellowship](https://blog.twitch.tv/en/2021/01/07/introducing-our-2021-twitch-research-fellows/).
+- [Vladislav Skripniuk](https://www.linkedin.com/in/vladislav-skripniuk-8a8891143/?originalSubdomain=ru) was partially supported by IMPRS scholarship from Max Planck Institute.
+- This work was also supported, in part, by the DARPA SemaFor (HR001119S0085) program. Any opinions, findings, conclusions, or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the DARPA.
 - We acknowledge [David Jacobs](http://www.cs.umd.edu/~djacobs/), [Matthias Zwicker](http://www.cs.umd.edu/~zwicker/), [Abhinav Shrivastava](https://www.cs.umd.edu/~abhinav/), [Yaser Yacoob](http://users.umiacs.umd.edu/~yaser/), and [Apratim Bhattacharyya](https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/people/apratim-bhattacharyya/) for constructive advice in general.
 - We express gratitudes to the [StegaStamp repository](https://github.com/tancik/StegaStamp) as our code was inspired from theirs.
 - We also thank the [ProGAN PyTorch repository](https://github.com/jeromerony/Progressive_Growing_of_GANs-PyTorch), [ProGAN TensorFlow repository](https://github.com/tkarras/progressive_growing_of_gans), [StyleGAN repository](https://github.com/NVlabs/stylegan), [StylegGAN2 repository](https://github.com/NVlabs/stylegan2), [BigGAN repository](https://github.com/ajbrock/BigGAN-PyTorch), and [CUT repository](https://github.com/taesungp/contrastive-unpaired-translation) for their implementations of the generative models.
